@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/Mldlr/storety/internal/proto";
+
+message CreateUserRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message CreateUserResponse {
+  string authToken = 1;
+  string refreshToken = 2;
+}
+
+message LoginUserRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginUserResponse {
+  string authToken = 1;
+  string refreshToken = 2;
+}
+
+message RefreshUserSessionRequest {
+}
+
+message RefreshUserSessionResponse {
+  string authToken = 1;
+  string refreshToken = 2;
+}
+
+service User {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc LogInUser (LoginUserRequest) returns (LoginUserResponse);
+  rpc RefreshUserSession (RefreshUserSessionRequest) returns (RefreshUserSessionResponse);
+}
+

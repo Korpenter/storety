@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/Mldlr/storety/internal/proto";
+
+message CreateDataRequest {
+  string name = 1;
+  string type = 2;
+  bytes content = 3;
+}
+
+message CreateDataResponse {
+}
+
+
+message DataInfo {
+  string name = 1;
+  string type = 2;
+}
+
+message ListDataRequest{
+}
+
+message ListDataResponse {
+  repeated DataInfo data = 1;
+}
+
+message GetContentRequest {
+  string name = 1;
+}
+
+message GetContentResponse {
+  bytes content = 3;
+}
+
+message DeleteDataRequest {
+  string name = 1;
+}
+
+message DeleteDataResponse {
+}
+
+service Data {
+  rpc CreateData(CreateDataRequest) returns (CreateDataResponse);
+  rpc GetContent(GetContentRequest) returns (GetContentResponse);
+  rpc ListData(ListDataRequest) returns (ListDataResponse);
+  rpc DeleteData(DeleteDataRequest) returns (DeleteDataResponse);
+}
