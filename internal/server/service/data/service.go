@@ -28,7 +28,7 @@ func (s *ServiceImpl) CreateData(ctx context.Context, data *models.Data) error {
 	return s.storage.CreateData(ctx, data)
 }
 
-func (s *ServiceImpl) GetDataContent(ctx context.Context, userID uuid.UUID, name string) ([]byte, error) {
+func (s *ServiceImpl) GetDataContent(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	return s.storage.GetDataContentByName(ctx, userID, name)
 }
 

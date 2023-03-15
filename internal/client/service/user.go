@@ -30,11 +30,14 @@ func (c *UserClient) CreateUser(username, password string) error {
 	if err != nil {
 		return err
 	}
-	err = c.cfg.UpdateConfig(result.AuthToken, result.RefreshToken, password)
+	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
 	if err != nil {
 		return err
 	}
-
+	err = c.cfg.UpdateKey(password)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -47,7 +50,24 @@ func (c *UserClient) LogInUser(username, password string) error {
 	if err != nil {
 		return err
 	}
-	err = c.cfg.UpdateConfig(result.AuthToken, result.RefreshToken, password)
+	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+	if err != nil {
+		return err
+	}
+	err = c.cfg.UpdateKey(password)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *UserClient) RefreshToken() error {
+	request := &pb.RefreshUserSessionRequest{}
+	result, err := c.userClient.RefreshUserSession(c.ctx, request)
+	if err != nil {
+		return err
+	}
+	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
 	if err != nil {
 		return err
 	}

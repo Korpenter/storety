@@ -1,35 +1,41 @@
 package config
 
 import (
-	"fmt"
-	"github.com/kelseyhightower/envconfig"
-	"os"
+	"github.com/spf13/viper"
+	"log"
 )
 
 type Config struct {
-	ServiceAddress  string `envconfig:"STORETY_ADDRESS" default:":8081"`
-	JWTAuthToken    string `envconfig:"JWT_AUTH_TOKEN" default:"jwt_auth_token"`
-	JWTRefreshToken string `envconfig:"JWT_REFRESH_TOKEN" default:"jwt_refresh_token"`
+	ServiceAddress  string `mapstructure:"service_address"`
+	JWTAuthToken    string `mapstructure:"jwt_auth_token"`
+	JWTRefreshToken string `mapstructure:"jwt_refresh_token"`
 	EncryptionKey   []byte
 }
 
 func NewConfig() *Config {
-	cfg := Config{}
-	envconfig.MustProcess("", &cfg)
-	fmt.Println(cfg)
-	return &cfg
+	viper.SetConfigFile("demo.yaml")
+	viper.SetDefault("service_address", ":8081")
+	viper.SetDefault("jwt_auth_token", nil)
+	viper.SetDefault("jwt_refresh_token", nil)
+	c := &Config{}
+	viper.ReadInConfig()
+	if err := viper.Unmarshal(c); err != nil {
+		log.Fatal(err)
+	}
+	viper.WriteConfig()
+	return c
 }
 
-func (c *Config) UpdateConfig(auth, refresh, password string) error {
-	err := os.Setenv("JWT_AUTH_TOKEN", auth)
-	if err != nil {
-		return err
-	}
-	err = os.Setenv("JWT_REFRESH_TOKEN", refresh)
-	if err != nil {
-		return err
-	}
+func (c *Config) UpdateTokens(auth, refresh string) error {
+	c.JWTAuthToken = auth
+	c.JWTRefreshToken = refresh
+	viper.Set("jwt_auth_token", auth)
+	viper.Set("jwt_refresh_token", refresh)
+	viper.WriteConfig()
+	return nil
+}
 
+func (c *Config) UpdateKey(password string) error {
 	key := []byte(password)
 	if len(key) < 32 {
 		for {
@@ -41,9 +47,6 @@ func (c *Config) UpdateConfig(auth, refresh, password string) error {
 	} else if len(key) > 32 {
 		key = key[:32]
 	}
-
-	c.JWTAuthToken = auth
-	c.JWTRefreshToken = refresh
 	c.EncryptionKey = key
 	return nil
 }

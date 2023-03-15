@@ -5,7 +5,6 @@ import (
 	"github.com/Mldlr/storety/internal/client/config"
 	pb "github.com/Mldlr/storety/internal/proto"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 type DataClient struct {
@@ -28,8 +27,7 @@ func (c *DataClient) CreateData(n, t string, content []byte) error {
 		Type:    t,
 		Content: content,
 	}
-	outCtx := metadata.NewOutgoingContext(c.ctx, metadata.Pairs("auth_token", c.cfg.JWTAuthToken))
-	_, err := c.dataClient.CreateData(outCtx, request)
+	_, err := c.dataClient.CreateData(c.ctx, request)
 	if err != nil {
 		return err
 	}
@@ -38,8 +36,8 @@ func (c *DataClient) CreateData(n, t string, content []byte) error {
 
 func (c *DataClient) ListData() (*pb.ListDataResponse, error) {
 	request := &pb.ListDataRequest{}
-	outCtx := metadata.NewOutgoingContext(c.ctx, metadata.Pairs("auth_token", c.cfg.JWTAuthToken))
-	resp, err := c.dataClient.ListData(outCtx, request)
+
+	resp, err := c.dataClient.ListData(c.ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +48,22 @@ func (c *DataClient) GetData(name string) (*pb.GetContentResponse, error) {
 	request := &pb.GetContentRequest{
 		Name: name,
 	}
-	outCtx := metadata.NewOutgoingContext(c.ctx, metadata.Pairs("auth_token", c.cfg.JWTAuthToken))
-	result, err := c.dataClient.GetContent(outCtx, request)
+
+	result, err := c.dataClient.GetContent(c.ctx, request)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (c *DataClient) DeleteData(name string) error {
+	request := &pb.DeleteDataRequest{
+		Name: name,
+	}
+
+	_, err := c.dataClient.DeleteData(c.ctx, request)
+	if err != nil {
+		return err
+	}
+	return nil
 }

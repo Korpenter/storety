@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 	"errors"
+	"github.com/Mldlr/storety/internal/constants"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -17,25 +17,26 @@ func (d *DB) CreateData(ctx context.Context, data *models.Data) error {
 	defer d.commitTx(ctx, tx, err)
 	res, err := d.conn.Exec(ctx, createData, data.ID, data.UserID, data.Name, data.Type, data.Content)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(storage.ErrCreatingData, err)
+		return errors.Join(constants.ErrCreatingData, err)
 	}
 	res, err = d.conn.Exec(ctx, updateDataVersion, data.UserID)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(storage.ErrUpdatingVersion, err)
+		return errors.Join(constants.ErrUpdatingVersion, err)
 	}
 	return nil
 }
 
-func (d *DB) GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, error) {
+func (d *DB) GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	var content []byte
-	err := d.conn.QueryRow(ctx, getDataContentByName, userID, name).Scan(&content)
+	var contentType string
+	err := d.conn.QueryRow(ctx, getDataContentByName, name, userID).Scan(&content, &contentType)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, storage.ErrGettingData
+			return nil, "", constants.ErrGettingData
 		}
-		return nil, err
+		return nil, "", err
 	}
-	return content, nil
+	return content, contentType, nil
 }
 
 func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string) error {
@@ -44,13 +45,13 @@ func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string
 		return err
 	}
 	defer d.commitTx(ctx, tx, err)
-	res, err := d.conn.Exec(ctx, deleteDataByName, userID, name)
+	res, err := d.conn.Exec(ctx, deleteDataByName, name, userID)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(storage.ErrDeletingData, err)
+		return errors.Join(constants.ErrDeletingData, err)
 	}
 	res, err = d.conn.Exec(ctx, updateDataVersion, userID)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(storage.ErrCreatingSession, err)
+		return errors.Join(constants.ErrCreatingSession, err)
 	}
 	return nil
 }
@@ -60,7 +61,7 @@ func (d *DB) GetAllDataInfo(ctx context.Context, userID uuid.UUID) ([]models.Dat
 	rows, err := d.conn.Query(ctx, getAllDataInfo, userID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, storage.ErrNoData
+			return nil, constants.ErrNoData
 		}
 		return nil, err
 	}

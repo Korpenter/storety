@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 	"errors"
+	"github.com/Mldlr/storety/internal/constants"
 	pb "github.com/Mldlr/storety/internal/proto"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -27,21 +27,21 @@ func (s *StoretyHandler) CreateData(ctx context.Context, request *pb.CreateDataR
 
 func (s *StoretyHandler) GetContent(ctx context.Context, request *pb.GetContentRequest) (*pb.GetContentResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
-	content, err := s.dataService.GetDataContent(ctx, session.UserID, request.Name)
+	content, contentType, err := s.dataService.GetDataContent(ctx, session.UserID, request.Name)
 	if err != nil {
-		if errors.Is(err, storage.ErrGettingData) {
+		if errors.Is(err, constants.ErrGettingData) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &pb.GetContentResponse{Content: content}, nil
+	return &pb.GetContentResponse{Content: content, Type: contentType}, nil
 }
 
 func (s *StoretyHandler) DeleteData(ctx context.Context, request *pb.DeleteDataRequest) (*pb.DeleteDataResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	err := s.dataService.DeleteData(ctx, session.UserID, request.Name)
 	if err != nil {
-		if errors.Is(err, storage.ErrDeletingData) {
+		if errors.Is(err, constants.ErrDeletingData) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())
@@ -53,7 +53,7 @@ func (s *StoretyHandler) ListData(ctx context.Context, request *pb.ListDataReque
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	list, err := s.dataService.ListData(ctx, session.UserID)
 	if err != nil {
-		if errors.Is(err, storage.ErrNoData) {
+		if errors.Is(err, constants.ErrNoData) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())

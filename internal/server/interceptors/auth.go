@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Mldlr/storety/internal/constants"
 	"github.com/Mldlr/storety/internal/server/models"
 	"github.com/Mldlr/storety/internal/server/pkg/token"
 	"github.com/Mldlr/storety/internal/server/pkg/util/helpers"
@@ -15,30 +16,32 @@ import (
 )
 
 // Auth is an authentication interceptor.
-type AuthInterceptor struct {
+type AuthServerInterceptor struct {
 	tokenAuth         token.TokenAuth
 	unprotectedRoutes map[string]struct{}
-	refreshRoute      string
+	refreshRoute      map[string]struct{}
 }
 
-func NewAuthInterceptor(i *do.Injector) *AuthInterceptor {
+func NewAuthInterceptor(i *do.Injector) *AuthServerInterceptor {
 	tokenAuth := do.MustInvoke[token.TokenAuth](i)
-	return &AuthInterceptor{
+	return &AuthServerInterceptor{
 		tokenAuth: tokenAuth,
 		unprotectedRoutes: map[string]struct{}{
 			"/proto.User/CreateUser": struct{}{},
 			"/proto.User/LogInUser":  struct{}{},
 		},
-		refreshRoute: "/proto.User/RefreshUserSession",
+		refreshRoute: map[string]struct{}{
+			"/proto.User/RefreshUserSession": struct{}{},
+		},
 	}
 }
 
-func (a *AuthInterceptor) UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func (a *AuthServerInterceptor) UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	if _, ok := a.unprotectedRoutes[info.FullMethod]; ok {
 		return handler(ctx, req)
 	}
 	var tokenName string
-	if info.FullMethod == a.refreshRoute {
+	if _, ok := a.refreshRoute[info.FullMethod]; ok {
 		tokenName = "refresh_token"
 	} else {
 		tokenName = "auth_token"
@@ -48,10 +51,9 @@ func (a *AuthInterceptor) UnaryInterceptor(ctx context.Context, req interface{},
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("missing %s", tokenName))
 	}
 	id, err := a.tokenAuth.Verify(tokenMD)
-	fmt.Println(err)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return nil, status.Error(codes.PermissionDenied, jwt.ErrTokenExpired.Error())
+			return nil, status.Error(codes.PermissionDenied, constants.ErrExpiredToken.Error())
 		}
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("invalid %s: %s", tokenName, err.Error()))
 	}

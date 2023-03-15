@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"context"
+	"github.com/Mldlr/storety/internal/constants"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/pashagolub/pgxmock/v2"
 	"github.com/stretchr/testify/assert"
@@ -83,7 +83,7 @@ func TestDB_GetSession(t *testing.T) {
 			rows:         pgxmock.NewRows([]string{"user_id"}),
 			wantID:       uuid.Nil,
 			refreshToken: "",
-			wantErr:      storage.ErrUserNotFound,
+			wantErr:      constants.ErrUserNotFound,
 		},
 	}
 	for _, tt := range tests {

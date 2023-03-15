@@ -2,10 +2,10 @@ package handler
 
 import (
 	"context"
+	"github.com/Mldlr/storety/internal/constants"
 	pb "github.com/Mldlr/storety/internal/proto"
 	"github.com/Mldlr/storety/internal/server/mocks"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -89,7 +89,7 @@ func TestDeleteData(t *testing.T) {
 			name: "Fail to Delete data with non-existent data",
 			setup: func(ctx context.Context, us *mocks.DataService) {
 				us.EXPECT().DeleteData(mock.AnythingOfType("*context.valueCtx"), userID, "password").
-					Return(storage.ErrDeletingData)
+					Return(constants.ErrDeletingData)
 			},
 			req: &pb.DeleteDataRequest{
 				Name: "password",
@@ -141,7 +141,7 @@ func TestListData(t *testing.T) {
 			name: "List data with no data to list",
 			setup: func(ctx context.Context, us *mocks.DataService) {
 				us.EXPECT().ListData(mock.AnythingOfType("*context.valueCtx"), userID).
-					Return(nil, storage.ErrNoData)
+					Return(nil, constants.ErrNoData)
 			},
 			req:     &pb.ListDataRequest{},
 			ctx:     context.WithValue(context.Background(), models.SessionKey{}, &models.Session{UserID: userID}),

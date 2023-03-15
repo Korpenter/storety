@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"context"
+	"github.com/Mldlr/storety/internal/constants"
 	pb "github.com/Mldlr/storety/internal/proto"
 	"github.com/Mldlr/storety/internal/server/mocks"
 	"github.com/golang-jwt/jwt/v5"
@@ -73,7 +74,7 @@ func TestAuthInterceptor_UnaryInterceptor_Unprotected(t *testing.T) {
 			unaryInfo: &grpc.UnaryServerInfo{
 				FullMethod: "/proto.User/RefreshUserSession",
 			},
-			wantedErrMsg: "token is expired",
+			wantedErrMsg: constants.ErrExpiredToken.Error(),
 			errCode:      codes.PermissionDenied,
 		},
 	}
@@ -82,13 +83,15 @@ func TestAuthInterceptor_UnaryInterceptor_Unprotected(t *testing.T) {
 		return nil, nil
 	}
 	mockAuth := new(mocks.TokenAuth)
-	interceptor := AuthInterceptor{
+	interceptor := AuthServerInterceptor{
 		tokenAuth: mockAuth,
 		unprotectedRoutes: map[string]struct{}{
 			"/proto.User/CreateUser": struct{}{},
 			"/proto.User/LogInUser":  struct{}{},
 		},
-		refreshRoute: "/proto.User/RefreshUserSession",
+		refreshRoute: map[string]struct{}{
+			"/proto.User/RefreshUserSession": struct{}{},
+		},
 	}
 
 	for _, tt := range tests {

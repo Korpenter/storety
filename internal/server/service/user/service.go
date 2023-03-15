@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"github.com/Mldlr/storety/internal/constants"
 	"github.com/Mldlr/storety/internal/server/models"
 	"github.com/Mldlr/storety/internal/server/pkg/token"
 	"github.com/Mldlr/storety/internal/server/storage"
@@ -41,8 +42,8 @@ func (s *ServiceImpl) CreateUser(ctx context.Context, user *models.User) (*model
 	}
 	err = s.storage.CreateUser(ctx, user)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExists) {
-			return nil, errors.Join(ErrInvalidCredentials, err)
+		if errors.Is(err, constants.ErrUserExists) {
+			return nil, errors.Join(constants.ErrInvalidCredentials, err)
 		}
 		return nil, err
 	}
@@ -65,14 +66,14 @@ func (s *ServiceImpl) CreateUser(ctx context.Context, user *models.User) (*model
 func (s *ServiceImpl) LogInUser(ctx context.Context, user *models.User) (*models.Session, error) {
 	uid, hash, err := s.storage.GetIdPassByName(ctx, user.Login)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
-			return nil, errors.Join(ErrInvalidCredentials, err)
+		if errors.Is(err, constants.ErrUserNotFound) {
+			return nil, errors.Join(constants.ErrInvalidCredentials, err)
 		}
 		return nil, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(user.Password))
 	if err != nil {
-		return nil, errors.Join(ErrInvalidCredentials, err)
+		return nil, errors.Join(constants.ErrInvalidCredentials, err)
 	}
 	session := &models.Session{UserID: uid}
 	session.ID, err = uuid.NewRandom()
@@ -95,8 +96,8 @@ func (s *ServiceImpl) RefreshUserSession(ctx context.Context, oldSession *models
 	session := &models.Session{}
 	session.UserID, err = s.storage.GetSession(ctx, oldSession.ID, oldSession.RefreshToken)
 	if err != nil {
-		if errors.Is(err, storage.ErrSessionNotFound) {
-			return nil, errors.Join(ErrInvalidRefreshToken, err)
+		if errors.Is(err, constants.ErrSessionNotFound) {
+			return nil, errors.Join(constants.ErrInvalidRefreshToken, err)
 		}
 		return nil, err
 	}

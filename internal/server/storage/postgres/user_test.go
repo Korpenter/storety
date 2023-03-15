@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"context"
+	"github.com/Mldlr/storety/internal/constants"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/pashagolub/pgxmock/v2"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +28,7 @@ func TestDB_CreateUser(t *testing.T) {
 		{
 			name:    "Try to create user with duplicate name",
 			rows:    pgxmock.NewRows([]string{"id"}),
-			wantErr: storage.ErrUserExists,
+			wantErr: constants.ErrUserExists,
 		},
 	}
 	for _, tt := range tests {
@@ -80,7 +80,7 @@ func TestDB_GetIdPassByName(t *testing.T) {
 			name:    "Try to get id for nonexistent user",
 			rows:    pgxmock.NewRows([]string{"id", "password"}),
 			wantID:  uuid.Nil,
-			wantErr: storage.ErrUserNotFound,
+			wantErr: constants.ErrUserNotFound,
 		},
 	}
 	for _, tt := range tests {

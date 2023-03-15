@@ -54,7 +54,7 @@ const (
 	)`
 
 	getDataContentByName = `
-    SELECT  content
+    SELECT  content, type
     FROM data
     WHERE name = $1 AND user_id = $2`
 

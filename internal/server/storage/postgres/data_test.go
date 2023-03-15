@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"context"
+	"github.com/Mldlr/storety/internal/constants"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/pashagolub/pgxmock/v2"
@@ -66,23 +66,25 @@ func TestGetDataContentByName(t *testing.T) {
 		name     string
 		rows     *pgxmock.Rows
 		want     []byte
+		wantType string
 		dataName string
 		wantErr  error
 	}{
 		{
 			name: "Get existing data",
-			rows: pgxmock.NewRows([]string{"content"}).
-				AddRow([]byte("content")),
+			rows: pgxmock.NewRows([]string{"content", "type"}).
+				AddRow([]byte("content"), "Text"),
 			want:     []byte("content"),
+			wantType: "Text",
 			dataName: "dataName",
 			wantErr:  nil,
 		},
 		{
 			name:     "Get with non-existent data",
-			rows:     pgxmock.NewRows([]string{"content"}),
+			rows:     pgxmock.NewRows([]string{"content", "type"}),
 			want:     nil,
 			dataName: "dataName",
-			wantErr:  storage.ErrUserNotFound,
+			wantErr:  constants.ErrUserNotFound,
 		},
 	}
 	for _, tt := range tests {
@@ -93,11 +95,12 @@ func TestGetDataContentByName(t *testing.T) {
 			}
 			defer mock.Close()
 
-			mock.ExpectQuery("SELECT content FROM data").
-				WithArgs(userID, tt.dataName).WillReturnRows(tt.rows)
+			mock.ExpectQuery("SELECT content, type FROM data").
+				WithArgs(tt.dataName, userID).WillReturnRows(tt.rows)
 			db := &DB{conn: mock}
-			content, err := db.GetDataContentByName(context.Background(), userID, tt.dataName)
+			content, contentType, err := db.GetDataContentByName(context.Background(), userID, tt.dataName)
 			assert.Equal(t, tt.want, content)
+			assert.Equal(t, tt.wantType, contentType)
 			if err := mock.ExpectationsWereMet(); err != nil {
 				t.Errorf("there were unfulfilled expectations: %s", err)
 			}
@@ -125,7 +128,7 @@ func TestDeleteDataByName(t *testing.T) {
 			name:     "Delete with non-existent data",
 			resIns:   pgxmock.NewResult("DELETE", 0),
 			dataName: "nonExistentName",
-			wantErr:  storage.ErrDeletingData,
+			wantErr:  constants.ErrDeletingData,
 		},
 	}
 	for _, tt := range tests {
@@ -137,7 +140,7 @@ func TestDeleteDataByName(t *testing.T) {
 			defer mock.Close()
 			mock.ExpectBegin()
 			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM data`)).
-				WithArgs(userID, tt.dataName).WillReturnResult(tt.resIns)
+				WithArgs(tt.dataName, userID).WillReturnResult(tt.resIns)
 			if tt.wantErr == nil {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users SET data_version = data_version + 1`)).
 					WithArgs(userID).WillReturnResult(tt.resUpd)
@@ -176,7 +179,7 @@ func TestDB_GetAllDataInfo(t *testing.T) {
 			rows:    pgxmock.NewRows([]string{"name", "type"}),
 			want:    nil,
 			userID:  uuid.New(),
-			wantErr: storage.ErrNoData,
+			wantErr: constants.ErrNoData,
 		},
 	}
 	for _, tt := range tests {

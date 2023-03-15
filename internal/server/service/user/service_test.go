@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
+	"github.com/Mldlr/storety/internal/constants"
 	mocks2 "github.com/Mldlr/storety/internal/server/mocks"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -43,7 +43,7 @@ func TestService_CreateUser(t *testing.T) {
 		{
 			name: "Fail to create user with duplicated username",
 			setup: func(ctx context.Context, ta *mocks2.TokenAuth, s *mocks2.Storage) {
-				s.EXPECT().CreateUser(ctx, mock.AnythingOfType("*models.User")).Return(storage.ErrUserExists)
+				s.EXPECT().CreateUser(ctx, mock.AnythingOfType("*models.User")).Return(constants.ErrUserExists)
 			},
 			user: &models.User{
 				Login:    "username",
@@ -53,7 +53,7 @@ func TestService_CreateUser(t *testing.T) {
 				AuthToken:    "auth_token",
 				RefreshToken: "refresh_token",
 			},
-			wantedErr: storage.ErrUserExists,
+			wantedErr: constants.ErrUserExists,
 		},
 	}
 	for _, tt := range tests {
@@ -95,7 +95,7 @@ func TestService_LogInUser(t *testing.T) {
 				Login:    "username",
 				Password: "password",
 			},
-			wantedErr: ErrInvalidCredentials,
+			wantedErr: constants.ErrInvalidCredentials,
 		},
 	}
 	for _, tt := range tests {
@@ -154,14 +154,14 @@ func TestService_RefreshUserSession(t *testing.T) {
 			name: "Fail to refresh session with session not found",
 			setup: func(ctx context.Context, ta *mocks2.TokenAuth, s *mocks2.Storage) {
 				s.EXPECT().GetSession(ctx, id, "OldRefreshToken").
-					Return(uuid.Nil, storage.ErrSessionNotFound)
+					Return(uuid.Nil, constants.ErrSessionNotFound)
 			},
 			session: &models.Session{
 				ID:           id,
 				RefreshToken: "OldRefreshToken",
 			},
 			want:      nil,
-			wantedErr: storage.ErrSessionNotFound,
+			wantedErr: constants.ErrSessionNotFound,
 		},
 	}
 	for _, tt := range tests {

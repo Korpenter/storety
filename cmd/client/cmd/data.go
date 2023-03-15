@@ -86,6 +86,17 @@ func getData(client *service.DataClient, crypto *service.Crypto) *cobra.Command 
 	return cmd
 }
 
+func deleteData(client *service.DataClient) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete_data [data_name]",
+		Short: "Get data item",
+		Long:  "",
+		Args:  cobra.ExactArgs(1),
+		RunE:  runDeleteData(client),
+	}
+	return cmd
+}
+
 func runCreateCredentials(client *service.DataClient, crypto *service.Crypto) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		dataName := args[0]
@@ -205,16 +216,70 @@ func runGetData(client *service.DataClient, crypto *service.Crypto) RunEFunc {
 		if err != nil {
 			return logError(err)
 		}
-		var encodedCred []byte
-		err = json.Unmarshal(data.Content, encodedCred)
+		decryptCred, err := crypto.DecryptWithAES256(data.Content)
 		if err != nil {
 			return logError(err)
 		}
-		decryptCred, err := crypto.DecryptWithAES256(encodedCred)
+		switch data.Type {
+		case "Cred":
+			cred := &models.Credentials{}
+			err = json.Unmarshal(decryptCred, cred)
+			if err != nil {
+				return logError(err)
+			}
+			log.Printf("Login: %s\n", cred.Login)
+			log.Printf("Password: %s\n", cred.Password)
+			log.Printf("Meta: %s\n", cred.Meta)
+		case "Card":
+			card := &models.Card{}
+			err = json.Unmarshal(decryptCred, card)
+			if err != nil {
+				return logError(err)
+			}
+			log.Printf("Number: %s\n", card.Number)
+			log.Printf("Expires: %s\n", card.Expires)
+			log.Printf("CVV: %s\n", card.CVV)
+			log.Printf("Name: %s\n", card.Name)
+			log.Printf("Surname: %s\n", card.Surname)
+			log.Printf("Meta: %s\n", card.Meta)
+		case "Text":
+			text := &models.Text{}
+			err = json.Unmarshal(decryptCred, text)
+			if err != nil {
+				return logError(err)
+			}
+			log.Printf("Text: %s\n", text.Text)
+			log.Printf("Meta: %s\n", text.Meta)
+		case "Binary":
+			binary := &models.Binary{}
+			err = json.Unmarshal(decryptCred, binary)
+			if err != nil {
+				return logError(err)
+			}
+			log.Printf("Blob: %s\n", binary.Blob)
+			log.Printf("Blob written to file: %s\n", args[0])
+			log.Printf("Meta: %s\n", binary.Meta)
+			file, err := os.OpenFile(args[0], os.O_WRONLY|os.O_CREATE, 0755)
+			if err != nil {
+				return logError(err)
+			}
+			defer file.Close()
+			_, err = file.Write(binary.Blob)
+			if err != nil {
+				return logError(err)
+			}
+		}
+		return nil
+	}
+}
+
+func runDeleteData(client *service.DataClient) RunEFunc {
+	return func(cmd *cobra.Command, args []string) error {
+		err := client.DeleteData(args[0])
 		if err != nil {
 			return logError(err)
 		}
-		log.Printf("%s: %s", args[0], decryptCred)
+		log.Println("Successfully deleted data")
 		return nil
 	}
 }

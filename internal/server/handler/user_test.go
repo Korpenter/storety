@@ -3,11 +3,10 @@ package handler
 import (
 	"context"
 	"errors"
+	"github.com/Mldlr/storety/internal/constants"
 	pb "github.com/Mldlr/storety/internal/proto"
 	"github.com/Mldlr/storety/internal/server/mocks"
 	"github.com/Mldlr/storety/internal/server/models"
-	"github.com/Mldlr/storety/internal/server/service/user"
-	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -49,7 +48,7 @@ func TestCreateUser(t *testing.T) {
 				us.EXPECT().CreateUser(mock.AnythingOfType("*context.emptyCtx"), &models.User{
 					Login:    "username",
 					Password: "password",
-				}).Return(nil, errors.Join(user.ErrInvalidCredentials, storage.ErrUserExists))
+				}).Return(nil, errors.Join(constants.ErrInvalidCredentials, constants.ErrUserExists))
 			},
 			req: &pb.CreateUserRequest{
 				Login:    "username",
@@ -121,7 +120,7 @@ func TestLoginUser(t *testing.T) {
 				us.EXPECT().LogInUser(mock.AnythingOfType("*context.emptyCtx"), &models.User{
 					Login:    "username",
 					Password: "password",
-				}).Return(nil, errors.Join(user.ErrInvalidCredentials, storage.ErrUserNotFound))
+				}).Return(nil, errors.Join(constants.ErrInvalidCredentials, constants.ErrUserNotFound))
 			},
 			req: &pb.LoginUserRequest{
 				Login:    "username",
@@ -188,7 +187,7 @@ func TestRefreshUserSession(t *testing.T) {
 			name: "Refresh unsuccessfully with invalid refresh token",
 			setup: func(ctx context.Context, us *mocks.UserService) {
 				us.EXPECT().RefreshUserSession(mock.AnythingOfType("*context.valueCtx"), mock.AnythingOfType("*models.Session")).
-					Return(nil, user.ErrInvalidRefreshToken)
+					Return(nil, constants.ErrInvalidRefreshToken)
 			},
 			req:     &pb.RefreshUserSessionRequest{},
 			want:    nil,

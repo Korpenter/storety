@@ -13,7 +13,7 @@ type Storage interface {
 	GetSession(ctx context.Context, sessionID uuid.UUID, refreshToken string) (uuid.UUID, error)
 	CreateSession(ctx context.Context, session, oldSession *models.Session) error
 	CreateData(ctx context.Context, data *models.Data) error
-	GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, error)
+	GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error)
 	GetAllDataInfo(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error)
 	DeleteDataByName(ctx context.Context, userID uuid.UUID, name string) error
 }

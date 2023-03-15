@@ -113,12 +113,13 @@ func (_c *DataService_DeleteData_Call) RunAndReturn(run func(context.Context, uu
 }
 
 // GetDataContent provides a mock function with given fields: ctx, userID, name
-func (_m *DataService) GetDataContent(ctx context.Context, userID uuid.UUID, name string) ([]byte, error) {
+func (_m *DataService) GetDataContent(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	ret := _m.Called(ctx, userID, name)
 
 	var r0 []byte
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) ([]byte, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) ([]byte, string, error)); ok {
 		return rf(ctx, userID, name)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) []byte); ok {
@@ -129,13 +130,19 @@ func (_m *DataService) GetDataContent(ctx context.Context, userID uuid.UUID, nam
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, string) string); ok {
 		r1 = rf(ctx, userID, name)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, string) error); ok {
+		r2 = rf(ctx, userID, name)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // DataService_GetDataContent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDataContent'
@@ -158,12 +165,12 @@ func (_c *DataService_GetDataContent_Call) Run(run func(ctx context.Context, use
 	return _c
 }
 
-func (_c *DataService_GetDataContent_Call) Return(_a0 []byte, _a1 error) *DataService_GetDataContent_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *DataService_GetDataContent_Call) Return(_a0 []byte, _a1 string, _a2 error) *DataService_GetDataContent_Call {
+	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *DataService_GetDataContent_Call) RunAndReturn(run func(context.Context, uuid.UUID, string) ([]byte, error)) *DataService_GetDataContent_Call {
+func (_c *DataService_GetDataContent_Call) RunAndReturn(run func(context.Context, uuid.UUID, string) ([]byte, string, error)) *DataService_GetDataContent_Call {
 	_c.Call.Return(run)
 	return _c
 }

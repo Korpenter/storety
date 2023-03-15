@@ -1,13 +1,9 @@
 package cmd
 
 import (
-	"context"
-	"github.com/Mldlr/storety/internal/client/config"
 	"github.com/Mldlr/storety/internal/client/service"
 	shell "github.com/brianstrauch/cobra-shell"
 	"github.com/spf13/cobra"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 )
 
@@ -15,24 +11,11 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 
 var rootCmd = &cobra.Command{}
 
-func Execute() {
-	ctx := context.Background()
-	cfg := config.NewConfig()
-	conn, err := grpc.Dial(cfg.ServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		logError(err)
-	}
-	defer conn.Close()
-	crypto := service.NewCrypto(cfg)
-	userClient := service.NewUserClient(ctx, conn, cfg)
+func Execute(userClient *service.UserClient, dataClient *service.DataClient, crypto *service.Crypto) {
 	userCmd := userClientCommand()
-	cUserCmd := createUserCmd(userClient)
-	lUserCmd := logInCmd(userClient)
-	userCmd.AddCommand(cUserCmd)
-	userCmd.AddCommand(lUserCmd)
+	userCmd.AddCommand(logInCmd(userClient))
+	userCmd.AddCommand(createUserCmd(userClient))
 	rootCmd.AddCommand(userCmd)
-
-	dataClient := service.NewDataClient(ctx, conn, cfg)
 	dataCmd := dataClientCommand()
 	dataCmd.AddCommand(createCredentials(dataClient, crypto))
 	dataCmd.AddCommand(createCard(dataClient, crypto))
@@ -40,6 +23,7 @@ func Execute() {
 	dataCmd.AddCommand(createBinary(dataClient, crypto))
 	dataCmd.AddCommand(listData(dataClient))
 	dataCmd.AddCommand(getData(dataClient, crypto))
+	dataCmd.AddCommand(deleteData(dataClient))
 	rootCmd.AddCommand(dataCmd)
 	rootCmd.AddCommand(shell.New(rootCmd, nil))
 	_ = rootCmd.Execute()
@@ -48,7 +32,6 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringP("server", "s", "localhost:8081", "set grpc server address")
 }
-
 func logError(err error) error {
 	if err != nil {
 		log.Println("Error running command: ", err)
