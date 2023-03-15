@@ -6,6 +6,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// Config is the configuration for the Storety server.
 type Config struct {
 	ServiceAddress          string `envconfig:"RUN_ADDRESS" default:":8081"`
 	PostgresURI             string `envconfig:"DATABASE_URI" default:""`
@@ -14,6 +15,7 @@ type Config struct {
 	JWTRefreshLifeTimeHours int    `envconfig:"JWT_LIFETIME_HOURS" default:"48"`
 }
 
+// NewConfig creates a new Config.
 func NewConfig() *Config {
 	var cfg Config
 	decimal.MarshalJSONWithoutQuotes = true

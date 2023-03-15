@@ -7,6 +7,7 @@ import (
 	"github.com/samber/do"
 )
 
+// configureServices configures the services for the Storety server.
 func configureServices(i *do.Injector) {
 	tokenAuth := token.NewJwtAuth(i)
 	do.Provide(

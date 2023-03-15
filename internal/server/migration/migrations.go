@@ -10,6 +10,7 @@ import (
 //go:embed migrations/*.sql
 var migrations embed.FS
 
+// RunMigrations runs the migrations.
 func RunMigrations(connStr string) error {
 	goose.SetBaseFS(migrations)
 

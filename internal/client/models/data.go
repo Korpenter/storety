@@ -1,11 +1,13 @@
 package models
 
+// Credentials is a struct that represents a credentials pair.
 type Credentials struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 	Meta     string `json:"meta"`
 }
 
+// Card is a struct that represents a card.
 type Card struct {
 	Number  string `json:"number"`
 	Expires string `json:"expires"`
@@ -15,11 +17,13 @@ type Card struct {
 	Meta    string `json:"meta"`
 }
 
+// Text is a struct that represents a text.
 type Text struct {
 	Text string `json:"text"`
 	Meta string `json:"meta"`
 }
 
+// Binary is a struct that represents a binary file.
 type Binary struct {
 	Blob []byte `json:"blob"`
 	Meta string `json:"meta"`

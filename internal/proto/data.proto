@@ -4,44 +4,53 @@ package proto;
 
 option go_package = "github.com/Mldlr/storety/internal/proto";
 
+// CreateDataRequest is the request to create a new data
 message CreateDataRequest {
   string name = 1;
   string type = 2;
   bytes content = 3;
 }
 
+// CreateDataResponse is the response to create a new data
 message CreateDataResponse {
 }
 
-
+// DataInfo is the information about a data entry
 message DataInfo {
   string name = 1;
   string type = 2;
 }
 
+// ListDataRequest is the request to list all data
 message ListDataRequest{
 }
 
+// ListDataResponse is the response to list all data
 message ListDataResponse {
   repeated DataInfo data = 1;
 }
 
+// GetContentRequest is the request to get the content of a data
 message GetContentRequest {
   string name = 1;
 }
 
+// GetContentResponse is the response to get the content of a data
 message GetContentResponse {
   bytes content = 1;
   string type =   2;
 }
 
+// DeleteDataRequest is the request to delete a data
 message DeleteDataRequest {
   string name = 1;
 }
 
+// DeleteDataResponse is the response to delete a data
 message DeleteDataResponse {
 }
 
+// Data is the service that allows to create, get, list and delete data
 service Data {
   rpc CreateData(CreateDataRequest) returns (CreateDataResponse);
   rpc GetContent(GetContentRequest) returns (GetContentResponse);

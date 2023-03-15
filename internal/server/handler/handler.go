@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// StoretyHandler is the handler for the Storety gRPC server.
 type StoretyHandler struct {
 	pb.UnimplementedDataServer
 	pb.UnimplementedUserServer
@@ -18,6 +19,7 @@ type StoretyHandler struct {
 	log         *zap.Logger
 }
 
+// NewStoretyHandler creates a new StoretyHandler.
 func NewStoretyHandler(i *do.Injector) *StoretyHandler {
 	userService := do.MustInvoke[user.Service](i)
 	dataService := do.MustInvoke[data.Service](i)

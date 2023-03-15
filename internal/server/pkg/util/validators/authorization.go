@@ -6,10 +6,13 @@ import (
 )
 
 var (
+	// ErrEmptyUsername is returned when the username is empty.
 	ErrEmptyUsername = errors.New("username cannot be empty")
-	ErrEmptyPass     = errors.New("password cannot be empty")
+	// ErrEmptyPass is returned when the password is empty.
+	ErrEmptyPass = errors.New("password cannot be empty")
 )
 
+// ValidateAuthorization validates the user login and password.
 func ValidateAuthorization(user *models.User) error {
 	if user.Login == "" {
 		return ErrEmptyUsername

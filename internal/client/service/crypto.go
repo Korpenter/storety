@@ -8,16 +8,19 @@ import (
 	"io"
 )
 
+// Crypto is a service that provides encryption and decryption methods.
 type Crypto struct {
 	cfg *config.Config
 }
 
+// NewCrypto makes a new Crypto.
 func NewCrypto(cfg *config.Config) *Crypto {
 	return &Crypto{
 		cfg: cfg,
 	}
 }
 
+// EncryptWithAES256 encrypts data with AES256.
 func (c *Crypto) EncryptWithAES256(data []byte) ([]byte, error) {
 	cipherBlock, err := aes.NewCipher(c.cfg.EncryptionKey)
 	if err != nil {
@@ -39,6 +42,7 @@ func (c *Crypto) EncryptWithAES256(data []byte) ([]byte, error) {
 	return encBytes, nil
 }
 
+// DecryptWithAES256 decrypts data with AES256.
 func (c *Crypto) DecryptWithAES256(data []byte) ([]byte, error) {
 	cipherBlock, err := aes.NewCipher(c.cfg.EncryptionKey)
 	if err != nil {

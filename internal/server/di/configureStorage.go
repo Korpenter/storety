@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// configureStorage configures the storage for the Storety server.
 func configureStorage(i *do.Injector) {
 	log := do.MustInvoke[*zap.Logger](i)
 	cfg := do.MustInvoke[*config.Config](i)

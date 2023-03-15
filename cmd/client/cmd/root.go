@@ -7,10 +7,12 @@ import (
 	"log"
 )
 
+// RunEFunc is a function that can be used as a cobra command's RunE function.
 type RunEFunc func(cmd *cobra.Command, args []string) error
 
 var rootCmd = &cobra.Command{}
 
+// Execute runs the root command and initializes subcommands.
 func Execute(userClient *service.UserClient, dataClient *service.DataClient, crypto *service.Crypto) {
 	userCmd := userClientCommand()
 	userCmd.AddCommand(logInCmd(userClient))
@@ -32,6 +34,8 @@ func Execute(userClient *service.UserClient, dataClient *service.DataClient, cry
 func init() {
 	rootCmd.PersistentFlags().StringP("server", "s", "localhost:8081", "set grpc server address")
 }
+
+// logError logs an error if it is not nil.
 func logError(err error) error {
 	if err != nil {
 		log.Println("Error running command: ", err)

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// CreateUser creates a new user
 func (s *StoretyHandler) CreateUser(ctx context.Context, request *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 	in := &models.User{
 		Login:    request.Login,
@@ -30,6 +31,7 @@ func (s *StoretyHandler) CreateUser(ctx context.Context, request *pb.CreateUserR
 	return &pb.CreateUserResponse{AuthToken: session.AuthToken, RefreshToken: session.RefreshToken}, nil
 }
 
+// LogInUser logs in a user
 func (s *StoretyHandler) LogInUser(ctx context.Context, request *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	in := &models.User{
 		Login:    request.Login,
@@ -48,6 +50,7 @@ func (s *StoretyHandler) LogInUser(ctx context.Context, request *pb.LoginUserReq
 	return &pb.LoginUserResponse{AuthToken: session.AuthToken, RefreshToken: session.RefreshToken}, nil
 }
 
+// RefreshUserSession refreshes a user session
 func (s *StoretyHandler) RefreshUserSession(ctx context.Context, request *pb.RefreshUserSessionRequest) (*pb.RefreshUserSessionResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	session, err := s.userService.RefreshUserSession(ctx, session)

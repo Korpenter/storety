@@ -15,12 +15,14 @@ import (
 	"syscall"
 )
 
+// GRPCServer is the gRPC server.
 type GRPCServer struct {
 	srv *grpc.Server
 	cfg *config.Config
 	log *zap.Logger
 }
 
+// NewGRPCServer creates a new GRPCServer.
 func NewGRPCServer(i *do.Injector) *GRPCServer {
 	cfg := do.MustInvoke[*config.Config](i)
 	log := do.MustInvoke[*zap.Logger](i)
@@ -36,6 +38,7 @@ func NewGRPCServer(i *do.Injector) *GRPCServer {
 	}
 }
 
+// Run starts the gRPC server.
 func (s *GRPCServer) Run() {
 	listener, err := net.Listen("tcp", s.cfg.ServiceAddress)
 	if err != nil {

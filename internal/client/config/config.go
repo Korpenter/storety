@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// Config is the configuration for the Storety client.
 type Config struct {
 	ServiceAddress  string `mapstructure:"service_address"`
 	JWTAuthToken    string `mapstructure:"jwt_auth_token"`
@@ -12,6 +13,7 @@ type Config struct {
 	EncryptionKey   []byte
 }
 
+// NewConfig creates a new Config.
 func NewConfig() *Config {
 	viper.SetConfigFile("demo.yaml")
 	viper.SetDefault("service_address", ":8081")
@@ -26,6 +28,7 @@ func NewConfig() *Config {
 	return c
 }
 
+// UpdateTokens updates the tokens in the config.
 func (c *Config) UpdateTokens(auth, refresh string) error {
 	c.JWTAuthToken = auth
 	c.JWTRefreshToken = refresh
@@ -35,6 +38,7 @@ func (c *Config) UpdateTokens(auth, refresh string) error {
 	return nil
 }
 
+// UpdateKey updates the key in the config.
 func (c *Config) UpdateKey(password string) error {
 	key := []byte(password)
 	if len(key) < 32 {

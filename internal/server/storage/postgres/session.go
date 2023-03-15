@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// CreateSession creates a new session entry in the database.
 func (d *DB) CreateSession(ctx context.Context, session *models.Session, oldSession *models.Session) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -28,6 +29,7 @@ func (d *DB) CreateSession(ctx context.Context, session *models.Session, oldSess
 	return nil
 }
 
+// GetSession retrieves the user id for a specific session.
 func (d *DB) GetSession(ctx context.Context, sessionID uuid.UUID, refreshToken string) (uuid.UUID, error) {
 	var userID uuid.UUID
 	err := d.conn.QueryRow(ctx, getUserBySession, sessionID, refreshToken).Scan(&userID)

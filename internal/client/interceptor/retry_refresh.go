@@ -14,12 +14,14 @@ import (
 	"time"
 )
 
+// RetryClientInterceptor is a client interceptor that retries RPCs.
 type RetryClientInterceptor struct {
 	cfg           *config.Config
 	retryTimes    uint
 	retryDuration time.Duration
 }
 
+// NewRetryClientInterceptor makes a new RetryClientInterceptor.
 func NewRetryClientInterceptor(cfg *config.Config, retryTimes uint, retryDuration time.Duration) *RetryClientInterceptor {
 	return &RetryClientInterceptor{
 		cfg:           cfg,
@@ -28,6 +30,7 @@ func NewRetryClientInterceptor(cfg *config.Config, retryTimes uint, retryDuratio
 	}
 }
 
+// UnaryInterceptor is a unary interceptor that retries RPCs and refreshes the token if needed.
 func (r *RetryClientInterceptor) UnaryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, callOpts ...grpc.CallOption) error {
 	var lastErr error
 	for attempt := uint(0); attempt < r.retryTimes; attempt++ {

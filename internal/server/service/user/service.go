@@ -9,27 +9,26 @@ import (
 	"github.com/Mldlr/storety/internal/server/storage"
 	"github.com/google/uuid"
 	"github.com/samber/do"
-	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// ServiceImpl is the implementation of the user service.
 type ServiceImpl struct {
 	storage   storage.Storage
 	tokenAuth token.TokenAuth
-	log       *zap.Logger
 }
 
+// NewService creates a new user service.
 func NewService(i *do.Injector) *ServiceImpl {
 	repo := do.MustInvoke[storage.Storage](i)
 	tokenAuth := do.MustInvoke[token.TokenAuth](i)
-	log := do.MustInvoke[*zap.Logger](i)
 	return &ServiceImpl{
 		storage:   repo,
 		tokenAuth: tokenAuth,
-		log:       log,
 	}
 }
 
+// CreateUser creates a new user.
 func (s *ServiceImpl) CreateUser(ctx context.Context, user *models.User) (*models.Session, error) {
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
@@ -63,6 +62,7 @@ func (s *ServiceImpl) CreateUser(ctx context.Context, user *models.User) (*model
 	return session, nil
 }
 
+// LogInUser logs in a user.
 func (s *ServiceImpl) LogInUser(ctx context.Context, user *models.User) (*models.Session, error) {
 	uid, hash, err := s.storage.GetIdPassByName(ctx, user.Login)
 	if err != nil {
@@ -91,6 +91,7 @@ func (s *ServiceImpl) LogInUser(ctx context.Context, user *models.User) (*models
 	return session, nil
 }
 
+// RefreshUserSession refreshes a user session.
 func (s *ServiceImpl) RefreshUserSession(ctx context.Context, oldSession *models.Session) (*models.Session, error) {
 	var err error
 	session := &models.Session{}

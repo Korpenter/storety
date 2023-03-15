@@ -2,6 +2,7 @@ package models
 
 import "github.com/google/uuid"
 
+// Data is the data model.
 type Data struct {
 	ID      uuid.UUID
 	UserID  uuid.UUID
@@ -10,6 +11,7 @@ type Data struct {
 	Content []byte
 }
 
+// DataInfo is the data info model.
 type DataInfo struct {
 	Name string
 	Type string

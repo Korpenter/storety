@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// Storage is the interface for the storage layer.
+//
 //go:generate mockery --name=Storage -r --case underscore --with-expecter --structname Storage --filename storage.go
 type Storage interface {
 	CreateUser(ctx context.Context, user *models.User) error

@@ -7,12 +7,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+// UserClient is a client for the User service.
 type UserClient struct {
 	ctx        context.Context
 	userClient pb.UserClient
 	cfg        *config.Config
 }
 
+// NewUserClient makes a new UserClient.
 func NewUserClient(ctx context.Context, conn *grpc.ClientConn, cfg *config.Config) *UserClient {
 	return &UserClient{
 		ctx:        ctx,
@@ -21,6 +23,7 @@ func NewUserClient(ctx context.Context, conn *grpc.ClientConn, cfg *config.Confi
 	}
 }
 
+// CreateUser makes a request to the CreateUser RPC to create a new user and updates the config.
 func (c *UserClient) CreateUser(username, password string) error {
 	request := &pb.CreateUserRequest{
 		Login:    username,
@@ -41,6 +44,7 @@ func (c *UserClient) CreateUser(username, password string) error {
 	return nil
 }
 
+// LogInUser makes a request to the LogInUser RPC to log in a user and updates the config.
 func (c *UserClient) LogInUser(username, password string) error {
 	request := &pb.LoginUserRequest{
 		Login:    username,
@@ -61,6 +65,7 @@ func (c *UserClient) LogInUser(username, password string) error {
 	return nil
 }
 
+// RefreshToken makes a request to the RefreshUserSession RPC to refresh the user's session and updates the config.
 func (c *UserClient) RefreshToken() error {
 	request := &pb.RefreshUserSessionRequest{}
 	result, err := c.userClient.RefreshUserSession(c.ctx, request)

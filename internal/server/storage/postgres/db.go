@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// conn is an interface that wraps the methods of pgxpool.Pool.
 type conn interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
@@ -17,10 +18,12 @@ type conn interface {
 	Close()
 }
 
+// DB is a wrapper around a pgxpool.Pool that implements the conn interface.
 type DB struct {
 	conn
 }
 
+// NewDB creates a new DB instance.
 func NewDB(connString string) (*DB, error) {
 	poolConfig, err := pgxpool.ParseConfig(connString)
 	if err != nil {
@@ -33,14 +36,12 @@ func NewDB(connString string) (*DB, error) {
 	return &DB{conn: pool}, nil
 }
 
-func (d *DB) Close() {
-	d.conn.Close()
-}
-
+// Ping checks if the connection to the database is still alive.
 func (d *DB) Ping(ctx context.Context) error {
 	return d.conn.Ping(ctx)
 }
 
+// commitTx commits or rolls back a transaction depending on the error.
 func (d *DB) commitTx(ctx context.Context, tx pgx.Tx, err error) {
 	if err != nil {
 		tx.Rollback(ctx)

@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// ConfigureDependencies configures the dependencies for the Storety server.
 func ConfigureDependencies(cfg *config.Config, log *zap.Logger) *do.Injector {
 	injector := do.New()
 

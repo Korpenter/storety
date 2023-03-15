@@ -4,34 +4,41 @@ package proto;
 
 option go_package = "github.com/Mldlr/storety/internal/proto";
 
+// CreateUserRequest creates new user
 message CreateUserRequest {
   string login = 1;
   string password = 2;
 }
 
+// CreateUserResponse returns tokens
 message CreateUserResponse {
   string authToken = 1;
   string refreshToken = 2;
 }
 
+// LoginUserRequest returns tokens
 message LoginUserRequest {
   string login = 1;
   string password = 2;
 }
 
+// LoginUserResponse returns tokens
 message LoginUserResponse {
   string authToken = 1;
   string refreshToken = 2;
 }
 
+// RefreshUserSessionRequest returns new tokens
 message RefreshUserSessionRequest {
 }
 
+// RefreshUserSessionResponse returns new tokens
 message RefreshUserSessionResponse {
   string authToken = 1;
   string refreshToken = 2;
 }
 
+// User service
 service User {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
   rpc LogInUser (LoginUserRequest) returns (LoginUserResponse);

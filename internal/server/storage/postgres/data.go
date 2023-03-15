@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// CreateData creates a new data entry in the database.
 func (d *DB) CreateData(ctx context.Context, data *models.Data) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -26,6 +27,7 @@ func (d *DB) CreateData(ctx context.Context, data *models.Data) error {
 	return nil
 }
 
+// GetDataContentByName retrieves the content and content type of data by name for a specific user.
 func (d *DB) GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	var content []byte
 	var contentType string
@@ -39,6 +41,7 @@ func (d *DB) GetDataContentByName(ctx context.Context, userID uuid.UUID, name st
 	return content, contentType, nil
 }
 
+// DeleteDataByName deletes a data entry by name for a specific user.
 func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -56,6 +59,7 @@ func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string
 	return nil
 }
 
+// GetAllDataInfo retrieves all data info (name, type) for a specific user.
 func (d *DB) GetAllDataInfo(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error) {
 	var list []models.DataInfo
 	rows, err := d.conn.Query(ctx, getAllDataInfo, userID)

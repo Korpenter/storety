@@ -7,12 +7,14 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// AuthClientInterceptor is a client interceptor that adds the auth token to the context.
 type AuthClientInterceptor struct {
 	cfg               *config.Config
 	unprotectedRoutes map[string]struct{}
 	refreshRoute      map[string]struct{}
 }
 
+// NewAuthClientInterceptor makes a new AuthClientInterceptor.
 func NewAuthClientInterceptor(cfg *config.Config) *AuthClientInterceptor {
 	return &AuthClientInterceptor{
 		cfg: cfg,
@@ -26,6 +28,7 @@ func NewAuthClientInterceptor(cfg *config.Config) *AuthClientInterceptor {
 	}
 }
 
+// UnaryInterceptor is the interceptor function.
 func (a *AuthClientInterceptor) UnaryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, callOpts ...grpc.CallOption) error {
 	if _, ok := a.unprotectedRoutes[method]; ok {
 		return invoker(ctx, method, req, reply, cc, callOpts...)

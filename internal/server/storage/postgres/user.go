@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// CreateUser creates a new user entry in the database.
 func (d *DB) CreateUser(ctx context.Context, user *models.User) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -25,6 +26,7 @@ func (d *DB) CreateUser(ctx context.Context, user *models.User) error {
 	return nil
 }
 
+// GetIdPassByName retrieves the user id and password for a specific user.
 func (d *DB) GetIdPassByName(ctx context.Context, username string) (uuid.UUID, string, error) {
 	var password string
 	var id uuid.UUID

@@ -15,13 +15,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Auth is an authentication interceptor.
+// AuthServerInterceptor implements a gRPC server interceptor for authentication.
 type AuthServerInterceptor struct {
 	tokenAuth         token.TokenAuth
 	unprotectedRoutes map[string]struct{}
 	refreshRoute      map[string]struct{}
 }
 
+// NewAuthInterceptor returns a new authentication interceptor.
 func NewAuthInterceptor(i *do.Injector) *AuthServerInterceptor {
 	tokenAuth := do.MustInvoke[token.TokenAuth](i)
 	return &AuthServerInterceptor{
@@ -36,6 +37,7 @@ func NewAuthInterceptor(i *do.Injector) *AuthServerInterceptor {
 	}
 }
 
+// UnaryInterceptor implements the UnaryInterceptor method of the grpc.UnaryServerInterceptor interface.
 func (a *AuthServerInterceptor) UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	if _, ok := a.unprotectedRoutes[info.FullMethod]; ok {
 		return handler(ctx, req)

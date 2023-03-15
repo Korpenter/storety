@@ -7,12 +7,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+// DataClient is a client for the Data service.
 type DataClient struct {
 	ctx        context.Context
 	dataClient pb.DataClient
 	cfg        *config.Config
 }
 
+// NewDataClient makes a new DataClient.
 func NewDataClient(ctx context.Context, conn *grpc.ClientConn, cfg *config.Config) *DataClient {
 	return &DataClient{
 		ctx:        ctx,
@@ -21,6 +23,7 @@ func NewDataClient(ctx context.Context, conn *grpc.ClientConn, cfg *config.Confi
 	}
 }
 
+// CreateData makes a request to the CreateData RPC to create a new data.
 func (c *DataClient) CreateData(n, t string, content []byte) error {
 	request := &pb.CreateDataRequest{
 		Name:    n,
@@ -34,6 +37,7 @@ func (c *DataClient) CreateData(n, t string, content []byte) error {
 	return nil
 }
 
+// ListData makes a request to the ListData RPC to list all data.
 func (c *DataClient) ListData() (*pb.ListDataResponse, error) {
 	request := &pb.ListDataRequest{}
 
@@ -44,6 +48,7 @@ func (c *DataClient) ListData() (*pb.ListDataResponse, error) {
 	return resp, nil
 }
 
+// GetData makes a request to the GetData RPC to get a data entry.
 func (c *DataClient) GetData(name string) (*pb.GetContentResponse, error) {
 	request := &pb.GetContentRequest{
 		Name: name,
@@ -56,6 +61,7 @@ func (c *DataClient) GetData(name string) (*pb.GetContentResponse, error) {
 	return result, nil
 }
 
+// DeleteData makes a request to the DeleteData RPC to delete a data entry.
 func (c *DataClient) DeleteData(name string) error {
 	request := &pb.DeleteDataRequest{
 		Name: name,

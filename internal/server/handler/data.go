@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// CreateData creates a new data
 func (s *StoretyHandler) CreateData(ctx context.Context, request *pb.CreateDataRequest) (*pb.CreateDataResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	in := &models.Data{
@@ -25,6 +26,7 @@ func (s *StoretyHandler) CreateData(ctx context.Context, request *pb.CreateDataR
 	return &pb.CreateDataResponse{}, nil
 }
 
+// GetContent gets the content of a data
 func (s *StoretyHandler) GetContent(ctx context.Context, request *pb.GetContentRequest) (*pb.GetContentResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	content, contentType, err := s.dataService.GetDataContent(ctx, session.UserID, request.Name)
@@ -37,6 +39,7 @@ func (s *StoretyHandler) GetContent(ctx context.Context, request *pb.GetContentR
 	return &pb.GetContentResponse{Content: content, Type: contentType}, nil
 }
 
+// DeleteData deletes a data
 func (s *StoretyHandler) DeleteData(ctx context.Context, request *pb.DeleteDataRequest) (*pb.DeleteDataResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	err := s.dataService.DeleteData(ctx, session.UserID, request.Name)
@@ -49,6 +52,7 @@ func (s *StoretyHandler) DeleteData(ctx context.Context, request *pb.DeleteDataR
 	return &pb.DeleteDataResponse{}, nil
 }
 
+// ListData lists all the data of a user
 func (s *StoretyHandler) ListData(ctx context.Context, request *pb.ListDataRequest) (*pb.ListDataResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	list, err := s.dataService.ListData(ctx, session.UserID)
