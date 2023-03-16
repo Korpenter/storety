@@ -34,11 +34,6 @@ func Execute(userClient *service.UserClient, dataClient *service.DataClient, cry
 	_ = rootCmd.Execute()
 }
 
-// init initializes the root command's persistent flags.
-func init() {
-	rootCmd.PersistentFlags().StringP("server", "s", "localhost:8081", "set grpc server address")
-}
-
 // logError logs an error if it is not nil.
 func logError(err error) error {
 	if err != nil {

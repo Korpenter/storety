@@ -55,9 +55,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to dial server:", err)
 	}
-	crypto := crypto.NewCrypto(cfg)
+	cryptoSvc := crypto.NewCrypto(cfg)
 	userClient := service.NewUserClient(ctx, conn, cfg)
 	dataClient := service.NewDataClient(ctx, conn, cfg)
 	defer conn.Close()
-	cmd.Execute(userClient, dataClient, crypto)
+	cmd.Execute(userClient, dataClient, cryptoSvc)
 }
