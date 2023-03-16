@@ -50,7 +50,8 @@ const (
     user_id,
     name,
     type,
-    content
+    content,
+	version
 	)
 	SELECT
 		$1,
@@ -70,7 +71,8 @@ const (
 			ELSE $3
 		END,
 		$4,
-		$5;
+		$5,
+		(SELECT data_version FROM users WHERE id = $2)
 `
 
 	// getDataContentByName is a query to get the content and type of a data record by its name and user ID.

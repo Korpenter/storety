@@ -17,7 +17,7 @@ type Config struct {
 // NewConfig creates a new Config instance and returns a pointer to it.
 // It reads the configuration from the "demo.yaml" file and sets default values if necessary.
 func NewConfig() *Config {
-	viper.SetConfigFile("demo.yaml")
+	viper.SetConfigFile("cfg.yaml")
 	viper.SetDefault("service_address", ":8081")
 	viper.SetDefault("jwt_auth_token", nil)
 	viper.SetDefault("jwt_refresh_token", nil)
