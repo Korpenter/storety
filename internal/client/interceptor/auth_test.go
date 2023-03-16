@@ -9,12 +9,6 @@ import (
 	"testing"
 )
 
-type mockInvoker struct{}
-
-func (m *mockInvoker) Invoke(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
-	return nil
-}
-
 func TestAuthClientInterceptor(t *testing.T) {
 	cfg := &config.Config{
 		JWTAuthToken:    "test_auth_token",
