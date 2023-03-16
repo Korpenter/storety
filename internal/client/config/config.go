@@ -11,6 +11,8 @@ type Config struct {
 	ServiceAddress  string `mapstructure:"service_address"`
 	JWTAuthToken    string `mapstructure:"jwt_auth_token"`
 	JWTRefreshToken string `mapstructure:"jwt_refresh_token"`
+	CertFile        string `mapstructure:"cert_file"`
+	KeyFile         string `mapstructure:"key_file"`
 	EncryptionKey   []byte
 }
 
@@ -21,6 +23,8 @@ func NewConfig() *Config {
 	viper.SetDefault("service_address", ":8081")
 	viper.SetDefault("jwt_auth_token", nil)
 	viper.SetDefault("jwt_refresh_token", nil)
+	viper.SetDefault("cert_file", "cert.pem")
+	viper.SetDefault("key_file", "key.pem")
 	c := &Config{}
 	viper.ReadInConfig()
 	if err := viper.Unmarshal(c); err != nil {

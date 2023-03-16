@@ -19,7 +19,7 @@ type conn interface {
 	Close()
 }
 
-// DB is a wrapper around a pgxpool.Pool that implements the conn interface for database operations.
+// DB is a wrapper around a pgxpool.Pool that implements conn interface for database operations.
 type DB struct {
 	conn
 }

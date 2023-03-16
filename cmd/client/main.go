@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/Mldlr/storety/cmd/client/cmd"
 	"github.com/Mldlr/storety/internal/client/config"
@@ -10,7 +11,7 @@ import (
 	"github.com/Mldlr/storety/internal/client/service/crypto"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"log"
 	"time"
 )
@@ -41,11 +42,19 @@ func main() {
 
 	ctx := context.Background()
 	cfg := config.NewConfig()
+	cert, err := tls.LoadX509KeyPair(cfg.CertFile, cfg.KeyFile)
+	if err != nil {
+		log.Fatal("Failed to load certificate:", err)
+	}
+	cred := credentials.NewTLS(&tls.Config{
+		Certificates:       []tls.Certificate{cert},
+		InsecureSkipVerify: true,
+	})
 	authInterceptor := interceptors.NewAuthClientInterceptor(cfg)
 	retryInterceptor := interceptors.NewRetryClientInterceptor(cfg, 10, 5*time.Second)
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTransportCredentials(cred),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
 			authInterceptor.UnaryInterceptor,
 			retryInterceptor.UnaryInterceptor,
