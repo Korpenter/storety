@@ -1,5 +1,5 @@
 // Package service provides client services for interacting with the Storety server.
-package service
+package crypto
 
 import (
 	"crypto/aes"

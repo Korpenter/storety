@@ -6,6 +6,7 @@ import (
 	"github.com/Mldlr/storety/internal/client/config"
 	interceptors "github.com/Mldlr/storety/internal/client/interceptor"
 	"github.com/Mldlr/storety/internal/client/service"
+	"github.com/Mldlr/storety/internal/client/service/crypto"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -30,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to dial server:", err)
 	}
-	crypto := service.NewCrypto(cfg)
+	crypto := crypto.NewCrypto(cfg)
 	userClient := service.NewUserClient(ctx, conn, cfg)
 	dataClient := service.NewDataClient(ctx, conn, cfg)
 	defer conn.Close()

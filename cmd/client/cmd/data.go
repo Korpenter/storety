@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Mldlr/storety/internal/client/models"
 	"github.com/Mldlr/storety/internal/client/service"
+	"github.com/Mldlr/storety/internal/client/service/crypto"
 	cobra "github.com/spf13/cobra"
 	"io"
 	"log"
@@ -22,7 +23,7 @@ func dataClientCommand() *cobra.Command {
 }
 
 // createCredentials creates a cobra command for creating a new credentials pair.
-func createCredentials(client *service.DataClient, crypto *service.Crypto) *cobra.Command {
+func createCredentials(client *service.DataClient, crypto *crypto.Crypto) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create_cred [data_name] [login] [password] [meta]",
 		Short: "Store new credentials pair",
@@ -34,7 +35,7 @@ func createCredentials(client *service.DataClient, crypto *service.Crypto) *cobr
 }
 
 // createCard creates a cobra command for creating a new card.
-func createCard(client *service.DataClient, crypto *service.Crypto) *cobra.Command {
+func createCard(client *service.DataClient, crypto *crypto.Crypto) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create_card [data_name] [number] [expires] [name] [surname] [cvv] [meta]",
 		Short: "Store new card",
@@ -46,7 +47,7 @@ func createCard(client *service.DataClient, crypto *service.Crypto) *cobra.Comma
 }
 
 // createText creates a cobra command for creating a new text data item.
-func createText(client *service.DataClient, crypto *service.Crypto) *cobra.Command {
+func createText(client *service.DataClient, crypto *crypto.Crypto) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create_text [data_name] [text] [meta]",
 		Short: "Store new text",
@@ -58,7 +59,7 @@ func createText(client *service.DataClient, crypto *service.Crypto) *cobra.Comma
 }
 
 // createBinary creates a cobra command for creating a new binary data item.
-func createBinary(client *service.DataClient, crypto *service.Crypto) *cobra.Command {
+func createBinary(client *service.DataClient, crypto *crypto.Crypto) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create_binary [data_name] [filename] [meta]",
 		Short: "Store new binary",
@@ -82,7 +83,7 @@ func listData(client *service.DataClient) *cobra.Command {
 }
 
 // getData creates a cobra command for getting a data item.
-func getData(client *service.DataClient, crypto *service.Crypto) *cobra.Command {
+func getData(client *service.DataClient, crypto *crypto.Crypto) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get_data [data_name]",
 		Short: "Get data item",
@@ -106,7 +107,7 @@ func deleteData(client *service.DataClient) *cobra.Command {
 }
 
 // runCreateCredentials is a wrapper creating a new Credentials data item.
-func runCreateCredentials(client *service.DataClient, crypto *service.Crypto) RunEFunc {
+func runCreateCredentials(client *service.DataClient, crypto *crypto.Crypto) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		dataName := args[0]
 		cred := &models.Credentials{
@@ -129,7 +130,7 @@ func runCreateCredentials(client *service.DataClient, crypto *service.Crypto) Ru
 }
 
 // runCreateCard is a wrapper creating a new Card data item.
-func runCreateCard(client *service.DataClient, crypto *service.Crypto) RunEFunc {
+func runCreateCard(client *service.DataClient, crypto *crypto.Crypto) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		dataName := args[0]
 		cred := &models.Card{
@@ -155,7 +156,7 @@ func runCreateCard(client *service.DataClient, crypto *service.Crypto) RunEFunc 
 }
 
 // runCreateText is a wrapper creating a new text data item.
-func runCreateText(client *service.DataClient, crypto *service.Crypto) RunEFunc {
+func runCreateText(client *service.DataClient, crypto *crypto.Crypto) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		dataName := args[0]
 		cred := &models.Text{
@@ -177,7 +178,7 @@ func runCreateText(client *service.DataClient, crypto *service.Crypto) RunEFunc 
 }
 
 // runCreateBinary is a wrapper creating a new binary data item.
-func runCreateBinary(client *service.DataClient, crypto *service.Crypto) RunEFunc {
+func runCreateBinary(client *service.DataClient, crypto *crypto.Crypto) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		dataName := args[0]
 
@@ -224,7 +225,7 @@ func runListData(client *service.DataClient) RunEFunc {
 }
 
 // runGetData is a wrapper for getting data from the server and formatting it.
-func runGetData(client *service.DataClient, crypto *service.Crypto) RunEFunc {
+func runGetData(client *service.DataClient, crypto *crypto.Crypto) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		data, err := client.GetData(args[0])
 		if err != nil {
