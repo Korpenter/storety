@@ -1,3 +1,4 @@
+// Package postgres implements the database operations for the postgres database.
 package postgres
 
 import (
@@ -7,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// conn is an interface that wraps the methods of pgxpool.Pool.
+// conn is an interface that wraps the methods of pgxpool.Pool for database operations.
 type conn interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
@@ -18,12 +19,12 @@ type conn interface {
 	Close()
 }
 
-// DB is a wrapper around a pgxpool.Pool that implements the conn interface.
+// DB is a wrapper around a pgxpool.Pool that implements the conn interface for database operations.
 type DB struct {
 	conn
 }
 
-// NewDB creates a new DB instance.
+// NewDB creates a new DB instance with the given connection string.
 func NewDB(connString string) (*DB, error) {
 	poolConfig, err := pgxpool.ParseConfig(connString)
 	if err != nil {
@@ -42,6 +43,7 @@ func (d *DB) Ping(ctx context.Context) error {
 }
 
 // commitTx commits or rolls back a transaction depending on the error.
+// If there is an error, it rolls back the transaction, otherwise, it commits the transaction.
 func (d *DB) commitTx(ctx context.Context, tx pgx.Tx, err error) {
 	if err != nil {
 		tx.Rollback(ctx)

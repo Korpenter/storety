@@ -27,6 +27,7 @@ func (d *DB) CreateUser(ctx context.Context, user *models.User) error {
 }
 
 // GetIdPassByName retrieves the user id and password for a specific user.
+// It returns the user's UUID, password, and any error that occurs.
 func (d *DB) GetIdPassByName(ctx context.Context, username string) (uuid.UUID, string, error) {
 	var password string
 	var id uuid.UUID

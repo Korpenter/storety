@@ -1,3 +1,4 @@
+// Package config provides configuration management for the Storety client.
 package config
 
 import (
@@ -13,7 +14,8 @@ type Config struct {
 	EncryptionKey   []byte
 }
 
-// NewConfig creates a new Config.
+// NewConfig creates a new Config instance and returns a pointer to it.
+// It reads the configuration from the "demo.yaml" file and sets default values if necessary.
 func NewConfig() *Config {
 	viper.SetConfigFile("demo.yaml")
 	viper.SetDefault("service_address", ":8081")
@@ -29,6 +31,7 @@ func NewConfig() *Config {
 }
 
 // UpdateTokens updates the tokens in the config.
+// It takes the new auth and refresh tokens as parameters and updates the configuration accordingly.
 func (c *Config) UpdateTokens(auth, refresh string) error {
 	c.JWTAuthToken = auth
 	c.JWTRefreshToken = refresh
@@ -38,7 +41,8 @@ func (c *Config) UpdateTokens(auth, refresh string) error {
 	return nil
 }
 
-// UpdateKey updates the key in the config.
+// UpdateKey updates the encryption key in the config.
+// It takes a password string as a parameter and updates the configuration accordingly.
 func (c *Config) UpdateKey(password string) error {
 	key := []byte(password)
 	if len(key) < 32 {

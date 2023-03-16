@@ -4,53 +4,53 @@ package proto;
 
 option go_package = "github.com/Mldlr/storety/internal/proto";
 
-// CreateDataRequest is the request to create a new data
+// CreateDataRequest is a message representing the request to create a new data entry.
 message CreateDataRequest {
   string name = 1;
   string type = 2;
   bytes content = 3;
 }
 
-// CreateDataResponse is the response to create a new data
+// CreateDataResponse is a message representing the response after creating a new data entry.
 message CreateDataResponse {
 }
 
-// DataInfo is the information about a data entry
+// DataInfo contains information about a specific data entry.
 message DataInfo {
   string name = 1;
   string type = 2;
 }
 
-// ListDataRequest is the request to list all data
+// ListDataRequest is a message representing the request to list all data entries.
 message ListDataRequest{
 }
 
-// ListDataResponse is the response to list all data
+// ListDataResponse is a message representing the response containing a list of all data entries.
 message ListDataResponse {
   repeated DataInfo data = 1;
 }
 
-// GetContentRequest is the request to get the content of a data
+// GetContentRequest is a message representing the request to retrieve the content of a specific data entry.
 message GetContentRequest {
   string name = 1;
 }
 
-// GetContentResponse is the response to get the content of a data
+// GetContentResponse is a message representing the response containing the content and type of a specific data entry.
 message GetContentResponse {
   bytes content = 1;
   string type =   2;
 }
 
-// DeleteDataRequest is the request to delete a data
+// DeleteDataRequest is a message representing the request to delete a specific data entry.
 message DeleteDataRequest {
   string name = 1;
 }
 
-// DeleteDataResponse is the response to delete a data
+// DeleteDataResponse is a message representing the response after deleting a specific data entry.
 message DeleteDataResponse {
 }
 
-// Data is the service that allows to create, get, list and delete data
+// Data is a service that provides methods for creating, retrieving, listing, and deleting data entries.
 service Data {
   rpc CreateData(CreateDataRequest) returns (CreateDataResponse);
   rpc GetContent(GetContentRequest) returns (GetContentResponse);

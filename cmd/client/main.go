@@ -16,13 +16,13 @@ import (
 func main() {
 	ctx := context.Background()
 	cfg := config.NewConfig()
-	authInterneptor := interceptors.NewAuthClientInterceptor(cfg)
+	authInterceptor := interceptors.NewAuthClientInterceptor(cfg)
 	retryInterceptor := interceptors.NewRetryClientInterceptor(cfg, 10, 5*time.Second)
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
-			authInterneptor.UnaryInterceptor,
+			authInterceptor.UnaryInterceptor,
 			retryInterceptor.UnaryInterceptor,
 		)),
 	}

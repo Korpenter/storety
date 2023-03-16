@@ -1,3 +1,4 @@
+// Package service provides client services for interacting with the Storety server.
 package service
 
 import (
@@ -13,7 +14,8 @@ type Crypto struct {
 	cfg *config.Config
 }
 
-// NewCrypto makes a new Crypto.
+// NewCrypto creates a new Crypto instance and returns a pointer to it.
+// It takes a configuration object as a parameter.
 func NewCrypto(cfg *config.Config) *Crypto {
 	return &Crypto{
 		cfg: cfg,
@@ -21,6 +23,7 @@ func NewCrypto(cfg *config.Config) *Crypto {
 }
 
 // EncryptWithAES256 encrypts data with AES256.
+// It takes a byte slice of data to be encrypted and returns the encrypted data or an error.
 func (c *Crypto) EncryptWithAES256(data []byte) ([]byte, error) {
 	cipherBlock, err := aes.NewCipher(c.cfg.EncryptionKey)
 	if err != nil {
@@ -43,6 +46,7 @@ func (c *Crypto) EncryptWithAES256(data []byte) ([]byte, error) {
 }
 
 // DecryptWithAES256 decrypts data with AES256.
+// It takes a byte slice of encrypted data and returns the decrypted data or an error.
 func (c *Crypto) DecryptWithAES256(data []byte) ([]byte, error) {
 	cipherBlock, err := aes.NewCipher(c.cfg.EncryptionKey)
 	if err != nil {

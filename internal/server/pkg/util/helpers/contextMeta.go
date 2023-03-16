@@ -1,3 +1,4 @@
+// Package helpers contains the helpers for the server.
 package helpers
 
 import (

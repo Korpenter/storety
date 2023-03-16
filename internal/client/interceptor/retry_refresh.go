@@ -21,7 +21,8 @@ type RetryClientInterceptor struct {
 	retryDuration time.Duration
 }
 
-// NewRetryClientInterceptor makes a new RetryClientInterceptor.
+// NewRetryClientInterceptor creates a new RetryClientInterceptor and returns a pointer to it.
+// It takes a configuration object, retryTimes, and retryDuration as parameters.
 func NewRetryClientInterceptor(cfg *config.Config, retryTimes uint, retryDuration time.Duration) *RetryClientInterceptor {
 	return &RetryClientInterceptor{
 		cfg:           cfg,

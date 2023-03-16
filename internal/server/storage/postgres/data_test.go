@@ -128,7 +128,7 @@ func TestDeleteDataByName(t *testing.T) {
 			name:     "Delete with non-existent data",
 			resIns:   pgxmock.NewResult("DELETE", 0),
 			dataName: "nonExistentName",
-			wantErr:  constants.ErrDeletingData,
+			wantErr:  constants.ErrDeleteData,
 		},
 	}
 	for _, tt := range tests {

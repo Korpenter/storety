@@ -1,3 +1,4 @@
+// Package handler provides the main Storety gRPC server handler.
 package handler
 
 import (
@@ -10,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// CreateData creates a new data
+// CreateData creates a new data item and stores it.
 func (s *StoretyHandler) CreateData(ctx context.Context, request *pb.CreateDataRequest) (*pb.CreateDataResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	in := &models.Data{
@@ -26,12 +27,12 @@ func (s *StoretyHandler) CreateData(ctx context.Context, request *pb.CreateDataR
 	return &pb.CreateDataResponse{}, nil
 }
 
-// GetContent gets the content of a data
+// GetContent retrieves the content of a data item.
 func (s *StoretyHandler) GetContent(ctx context.Context, request *pb.GetContentRequest) (*pb.GetContentResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	content, contentType, err := s.dataService.GetDataContent(ctx, session.UserID, request.Name)
 	if err != nil {
-		if errors.Is(err, constants.ErrGettingData) {
+		if errors.Is(err, constants.ErrGetData) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())
@@ -39,12 +40,12 @@ func (s *StoretyHandler) GetContent(ctx context.Context, request *pb.GetContentR
 	return &pb.GetContentResponse{Content: content, Type: contentType}, nil
 }
 
-// DeleteData deletes a data
+// DeleteData removes a data item.
 func (s *StoretyHandler) DeleteData(ctx context.Context, request *pb.DeleteDataRequest) (*pb.DeleteDataResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	err := s.dataService.DeleteData(ctx, session.UserID, request.Name)
 	if err != nil {
-		if errors.Is(err, constants.ErrDeletingData) {
+		if errors.Is(err, constants.ErrDeleteData) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())
@@ -52,7 +53,7 @@ func (s *StoretyHandler) DeleteData(ctx context.Context, request *pb.DeleteDataR
 	return &pb.DeleteDataResponse{}, nil
 }
 
-// ListData lists all the data of a user
+// ListData returns a list of all data items for a user.
 func (s *StoretyHandler) ListData(ctx context.Context, request *pb.ListDataRequest) (*pb.ListDataResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	list, err := s.dataService.ListData(ctx, session.UserID)

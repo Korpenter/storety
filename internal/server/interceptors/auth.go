@@ -1,3 +1,4 @@
+// Package interceptors provides gRPC interceptors for authentication and other middleware functionalities.
 package interceptors
 
 import (
@@ -38,6 +39,7 @@ func NewAuthInterceptor(i *do.Injector) *AuthServerInterceptor {
 }
 
 // UnaryInterceptor implements the UnaryInterceptor method of the grpc.UnaryServerInterceptor interface.
+// It checks if a route requires authentication and verifies the token if needed.
 func (a *AuthServerInterceptor) UnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	if _, ok := a.unprotectedRoutes[info.FullMethod]; ok {
 		return handler(ctx, req)

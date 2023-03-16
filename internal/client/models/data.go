@@ -1,3 +1,4 @@
+// Package models contains all the models used by the client.
 package models
 
 // Credentials is a struct that represents a credentials pair.

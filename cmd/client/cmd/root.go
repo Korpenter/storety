@@ -1,3 +1,4 @@
+// Package cmd contains the commands for the Storety client's command-line interface.
 package cmd
 
 import (
@@ -7,12 +8,13 @@ import (
 	"log"
 )
 
-// RunEFunc is a function that can be used as a cobra command's RunE function.
+// RunEFunc is a function type that can be used as a cobra command's RunE function.
 type RunEFunc func(cmd *cobra.Command, args []string) error
 
+// rootCmd is the root command of the Storety client's command-line interface.
 var rootCmd = &cobra.Command{}
 
-// Execute runs the root command and initializes subcommands.
+// Execute initializes and runs the root command along with its subcommands.
 func Execute(userClient *service.UserClient, dataClient *service.DataClient, crypto *service.Crypto) {
 	userCmd := userClientCommand()
 	userCmd.AddCommand(logInCmd(userClient))
@@ -31,6 +33,7 @@ func Execute(userClient *service.UserClient, dataClient *service.DataClient, cry
 	_ = rootCmd.Execute()
 }
 
+// init initializes the root command's persistent flags.
 func init() {
 	rootCmd.PersistentFlags().StringP("server", "s", "localhost:8081", "set grpc server address")
 }

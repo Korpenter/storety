@@ -1,3 +1,4 @@
+// Package validators contains the validators for the server.
 package validators
 
 import (

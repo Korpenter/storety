@@ -1,3 +1,4 @@
+// Package interceptors provides gRPC client interceptors for the Storety client.
 package interceptors
 
 import (
@@ -14,7 +15,8 @@ type AuthClientInterceptor struct {
 	refreshRoute      map[string]struct{}
 }
 
-// NewAuthClientInterceptor makes a new AuthClientInterceptor.
+// NewAuthClientInterceptor creates a new AuthClientInterceptor and returns a pointer to it.
+// It takes a configuration object as a parameter.
 func NewAuthClientInterceptor(cfg *config.Config) *AuthClientInterceptor {
 	return &AuthClientInterceptor{
 		cfg: cfg,
@@ -28,7 +30,8 @@ func NewAuthClientInterceptor(cfg *config.Config) *AuthClientInterceptor {
 	}
 }
 
-// UnaryInterceptor is the interceptor function.
+// UnaryInterceptor is the interceptor function. It adds the appropriate auth token
+// to the outgoing context based on the gRPC method being called.
 func (a *AuthClientInterceptor) UnaryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, callOpts ...grpc.CallOption) error {
 	if _, ok := a.unprotectedRoutes[method]; ok {
 		return invoker(ctx, method, req, reply, cc, callOpts...)

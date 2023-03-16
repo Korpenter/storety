@@ -11,7 +11,6 @@ import (
 	"testing"
 )
 
-// CreateUser test
 func TestDB_CreateSession(t *testing.T) {
 	id, err := uuid.NewRandom()
 	assert.NoError(t, err)

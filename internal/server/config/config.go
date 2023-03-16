@@ -1,3 +1,4 @@
+// Package config provides the configuration for the Storety server.
 package config
 
 import (
@@ -15,7 +16,8 @@ type Config struct {
 	JWTRefreshLifeTimeHours int    `envconfig:"JWT_LIFETIME_HOURS" default:"48"`
 }
 
-// NewConfig creates a new Config.
+// NewConfig creates a new Config instance and returns a pointer to it.
+// It reads configuration values from environment variables and command-line flags.
 func NewConfig() *Config {
 	var cfg Config
 	decimal.MarshalJSONWithoutQuotes = true

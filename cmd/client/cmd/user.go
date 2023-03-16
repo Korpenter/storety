@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-// createUserCmd is a cobra command for interacting with user service.
+// userClientCommand creates a cobra command for interacting with the user service.
 func userClientCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "user",
@@ -17,7 +17,7 @@ func userClientCommand() *cobra.Command {
 	return cmd
 }
 
-// createUserCmd is a cobra command for creating a new user.
+// createUserCmd creates a cobra command for creating a new user.
 func createUserCmd(client *service.UserClient) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [name] [password]",
@@ -29,7 +29,7 @@ func createUserCmd(client *service.UserClient) *cobra.Command {
 	return cmd
 }
 
-// logInCmd is a cobra command for logging in a user.
+// logInCmd creates a cobra command for logging in a user.
 func logInCmd(client *service.UserClient) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "login [name] [password]",
@@ -41,7 +41,7 @@ func logInCmd(client *service.UserClient) *cobra.Command {
 	return cmd
 }
 
-// runCreateUserCmd is a cli wrapper for client.CreateUser
+// runCreateUserCmd returns a RunEFunc that serves as a CLI wrapper for client.CreateUser.
 func runCreateUserCmd(client *service.UserClient) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		username, password := args[0], args[1]
@@ -54,7 +54,7 @@ func runCreateUserCmd(client *service.UserClient) RunEFunc {
 	}
 }
 
-// runLogInCmd is a cli wrapper for client.LogInUser
+// runLogInCmd returns a RunEFunc that serves as a CLI wrapper for client.LogInUser.
 func runLogInCmd(client *service.UserClient) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		username, password := args[0], args[1]

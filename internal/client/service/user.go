@@ -14,7 +14,8 @@ type UserClient struct {
 	cfg        *config.Config
 }
 
-// NewUserClient makes a new UserClient.
+// NewUserClient creates a new UserClient instance and returns a pointer to it.
+// It takes a context, a gRPC client connection, and a configuration object as parameters.
 func NewUserClient(ctx context.Context, conn *grpc.ClientConn, cfg *config.Config) *UserClient {
 	return &UserClient{
 		ctx:        ctx,

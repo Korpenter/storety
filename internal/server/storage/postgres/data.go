@@ -18,11 +18,11 @@ func (d *DB) CreateData(ctx context.Context, data *models.Data) error {
 	defer d.commitTx(ctx, tx, err)
 	res, err := d.conn.Exec(ctx, createData, data.ID, data.UserID, data.Name, data.Type, data.Content)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(constants.ErrCreatingData, err)
+		return errors.Join(constants.ErrCreateData, err)
 	}
 	res, err = d.conn.Exec(ctx, updateDataVersion, data.UserID)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(constants.ErrUpdatingVersion, err)
+		return errors.Join(constants.ErrUpdateVersion, err)
 	}
 	return nil
 }
@@ -34,7 +34,7 @@ func (d *DB) GetDataContentByName(ctx context.Context, userID uuid.UUID, name st
 	err := d.conn.QueryRow(ctx, getDataContentByName, name, userID).Scan(&content, &contentType)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, "", constants.ErrGettingData
+			return nil, "", constants.ErrGetData
 		}
 		return nil, "", err
 	}
@@ -50,11 +50,11 @@ func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string
 	defer d.commitTx(ctx, tx, err)
 	res, err := d.conn.Exec(ctx, deleteDataByName, name, userID)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(constants.ErrDeletingData, err)
+		return errors.Join(constants.ErrDeleteData, err)
 	}
 	res, err = d.conn.Exec(ctx, updateDataVersion, userID)
 	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(constants.ErrCreatingSession, err)
+		return errors.Join(constants.ErrCreateSession, err)
 	}
 	return nil
 }

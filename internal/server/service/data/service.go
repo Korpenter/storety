@@ -21,7 +21,7 @@ func NewService(i *do.Injector) *ServiceImpl {
 	}
 }
 
-// CreateData creates a new data.
+// CreateData creates a new data entry for the specified user.
 func (s *ServiceImpl) CreateData(ctx context.Context, data *models.Data) error {
 	var err error
 	data.ID, err = uuid.NewRandom()
@@ -31,17 +31,17 @@ func (s *ServiceImpl) CreateData(ctx context.Context, data *models.Data) error {
 	return s.storage.CreateData(ctx, data)
 }
 
-// GetDataContent gets the content of a data.
+// GetDataContent retrieves the content and content type of a specified data entry for a user.
 func (s *ServiceImpl) GetDataContent(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	return s.storage.GetDataContentByName(ctx, userID, name)
 }
 
-// DeleteData deletes a data.
+// DeleteData removes a specified data entry for a user.
 func (s *ServiceImpl) DeleteData(ctx context.Context, userID uuid.UUID, name string) error {
 	return s.storage.DeleteDataByName(ctx, userID, name)
 }
 
-// ListData lists all data.
+// ListData retrieves a list of all data entries associated with a user.
 func (s *ServiceImpl) ListData(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error) {
 	return s.storage.GetAllDataInfo(ctx, userID)
 }

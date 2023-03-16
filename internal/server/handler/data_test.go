@@ -89,7 +89,7 @@ func TestDeleteData(t *testing.T) {
 			name: "Fail to Delete data with non-existent data",
 			setup: func(ctx context.Context, us *mocks.DataService) {
 				us.EXPECT().DeleteData(mock.AnythingOfType("*context.valueCtx"), userID, "password").
-					Return(constants.ErrDeletingData)
+					Return(constants.ErrDeleteData)
 			},
 			req: &pb.DeleteDataRequest{
 				Name: "password",

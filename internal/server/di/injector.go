@@ -1,3 +1,4 @@
+// Package di provides the dependency injection for the Storety server.
 package di
 
 import (

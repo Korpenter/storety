@@ -1,3 +1,4 @@
+// Package handler provides the main Storety gRPC server handler.
 package handler
 
 import (
@@ -10,6 +11,7 @@ import (
 )
 
 // StoretyHandler is the handler for the Storety gRPC server.
+// It embeds both UnimplementedDataServer and UnimplementedUserServer interfaces.
 type StoretyHandler struct {
 	pb.UnimplementedDataServer
 	pb.UnimplementedUserServer
@@ -19,7 +21,8 @@ type StoretyHandler struct {
 	log         *zap.Logger
 }
 
-// NewStoretyHandler creates a new StoretyHandler.
+// NewStoretyHandler creates a new StoretyHandler with the provided dependencies.
+// It takes a *do.Injector as input and initializes the required dependencies.
 func NewStoretyHandler(i *do.Injector) *StoretyHandler {
 	userService := do.MustInvoke[user.Service](i)
 	dataService := do.MustInvoke[data.Service](i)

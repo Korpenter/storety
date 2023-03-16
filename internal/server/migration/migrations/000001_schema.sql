@@ -30,6 +30,6 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS "users";
-DROP TABLE IF EXISTS "keeper";
+DROP TABLE IF EXISTS "data";
 DROP TABLE IF EXISTS "sessions";
 -- +goose StatementEnd

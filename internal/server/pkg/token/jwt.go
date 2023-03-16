@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-// TokenAuth implements JWT authentication flow.
+// JWTAuth implements JWT authentication flow.
 type JWTAuth struct {
 	cfg *config.Config
 }
 
-// NewTokenAuth configures and returns a JWT authentication instance.
+// NewJwtAuth configures and returns a JWT authentication instance.
 func NewJwtAuth(i *do.Injector) *JWTAuth {
 	cfg := do.MustInvoke[*config.Config](i)
 	return &JWTAuth{
@@ -22,6 +22,8 @@ func NewJwtAuth(i *do.Injector) *JWTAuth {
 	}
 }
 
+// Verify checks the validity of the given JWT token and returns the UUID associated with it.
+// Returns an error if the token is invalid or expired.
 func (a *JWTAuth) Verify(token string) (uuid.UUID, error) {
 	t, err := jwt.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(a.cfg.JWTAuthKey), nil
@@ -40,7 +42,7 @@ func (a *JWTAuth) Verify(token string) (uuid.UUID, error) {
 	return id, nil
 }
 
-// GenTokenPair returns both an access token and a refresh token.
+// GenerateTokenPair returns both an access token and a refresh token for the given UUID.
 func (a *JWTAuth) GenerateTokenPair(id, sessionID uuid.UUID) (string, string, error) {
 	access, err := a.createJWT(id)
 	if err != nil {
@@ -53,7 +55,7 @@ func (a *JWTAuth) GenerateTokenPair(id, sessionID uuid.UUID) (string, string, er
 	return access, refresh, nil
 }
 
-// CreateJWT returns an access token for provided account claims.
+// createJWT returns an access token for the provided UUID.
 func (a *JWTAuth) createJWT(id uuid.UUID) (string, error) {
 	claims := jwt.RegisteredClaims{
 		IssuedAt: jwt.NewNumericDate(time.Now()),
@@ -63,13 +65,10 @@ func (a *JWTAuth) createJWT(id uuid.UUID) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(a.cfg.JWTAuthKey))
-	if err != nil {
-		return tokenString, err
-	}
 	return tokenString, err
 }
 
-// CreateRefreshJWT returns a refresh token for provided token Claims.
+// createRefreshJWT returns a refresh token for the provided UUID.
 func (a *JWTAuth) createRefreshJWT(id uuid.UUID) (string, error) {
 	claims := jwt.RegisteredClaims{
 		IssuedAt: jwt.NewNumericDate(time.Now()),
@@ -79,8 +78,5 @@ func (a *JWTAuth) createRefreshJWT(id uuid.UUID) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(a.cfg.JWTAuthKey))
-	if err != nil {
-		return tokenString, err
-	}
 	return tokenString, err
 }

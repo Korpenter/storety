@@ -14,7 +14,8 @@ type DataClient struct {
 	cfg        *config.Config
 }
 
-// NewDataClient makes a new DataClient.
+// NewDataClient creates a new DataClient instance and returns a pointer to it.
+// It takes a context, a gRPC client connection, and a configuration object as parameters.
 func NewDataClient(ctx context.Context, conn *grpc.ClientConn, cfg *config.Config) *DataClient {
 	return &DataClient{
 		ctx:        ctx,

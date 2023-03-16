@@ -1,3 +1,4 @@
+// Package grpcServer provides the gRPC server implementation for the Storety service.
 package grpcServer
 
 import (
@@ -15,14 +16,15 @@ import (
 	"syscall"
 )
 
-// GRPCServer is the gRPC server.
+// GRPCServer is the gRPC server for the Storety service.
 type GRPCServer struct {
 	srv *grpc.Server
 	cfg *config.Config
 	log *zap.Logger
 }
 
-// NewGRPCServer creates a new GRPCServer.
+// NewGRPCServer creates a new GRPCServer with the provided dependency injector.
+// It returns a pointer to the newly created GRPCServer.
 func NewGRPCServer(i *do.Injector) *GRPCServer {
 	cfg := do.MustInvoke[*config.Config](i)
 	log := do.MustInvoke[*zap.Logger](i)
@@ -38,7 +40,8 @@ func NewGRPCServer(i *do.Injector) *GRPCServer {
 	}
 }
 
-// Run starts the gRPC server.
+// Run starts the gRPC server and listens for incoming connections.
+// It also handles graceful shutdown on receiving termination signals.
 func (s *GRPCServer) Run() {
 	listener, err := net.Listen("tcp", s.cfg.ServiceAddress)
 	if err != nil {
