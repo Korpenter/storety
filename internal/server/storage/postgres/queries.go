@@ -46,18 +46,32 @@ const (
 
 	// createData is a query to insert a new data record.
 	createData = `INSERT INTO data (
-		id,
-		user_id,
-		name,
-		type,
-		content
-	) VALUES (
+    id,
+    user_id,
+    name,
+    type,
+    content
+	)
+	SELECT
 		$1,
 		$2,
-		$3,
+		CASE 
+			WHEN EXISTS (
+				SELECT 1 
+				FROM data 
+				WHERE user_id = $2 AND name = $3
+			)
+				THEN (
+					SELECT 
+						CONCAT($3, '_', COALESCE(MAX(SUBSTRING(name FROM '.*_(\d+)')::INTEGER), 0) + 1)
+					FROM data 
+					WHERE user_id = $2 AND name LIKE $3 || '_%'
+				)
+			ELSE $3
+		END,
 		$4,
-		$5
-	)`
+		$5;
+`
 
 	// getDataContentByName is a query to get the content and type of a data record by its name and user ID.
 	getDataContentByName = `
@@ -79,6 +93,6 @@ const (
 
 	// deleteDataByName is a query to delete a data record by its name and user ID.
 	deleteDataByName = `
-	DELETE FROM data
+	UPDATE data SET deleted = true, content = null, version = version + 1,
 	WHERE name = $1 AND user_id = $2`
 )

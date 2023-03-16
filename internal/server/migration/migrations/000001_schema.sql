@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS data (
     type varchar(10) CHECK (type IN ('Card', 'Cred', 'Binary', 'Text')),
     content bytea,
     created_at timestamp  DEFAULT CURRENT_TIMESTAMP,
+    deleted boolean NOT NULL DEFAULT false,
     UNIQUE (user_id, name),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );

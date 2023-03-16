@@ -139,7 +139,7 @@ func TestDeleteDataByName(t *testing.T) {
 			}
 			defer mock.Close()
 			mock.ExpectBegin()
-			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM data`)).
+			mock.ExpectExec(regexp.QuoteMeta(`UPDATE data SET`)).
 				WithArgs(tt.dataName, userID).WillReturnResult(tt.resIns)
 			if tt.wantErr == nil {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users SET data_version = data_version + 1`)).
