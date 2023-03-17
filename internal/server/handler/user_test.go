@@ -102,7 +102,7 @@ func TestLoginUser(t *testing.T) {
 				us.EXPECT().LogInUser(mock.AnythingOfType("*context.emptyCtx"), &models.User{
 					Login:    "username",
 					Password: "password",
-				}).Return(&models.Session{AuthToken: "auth_token", RefreshToken: "refresh_token"}, nil)
+				}).Return(&models.Session{AuthToken: "auth_token", RefreshToken: "refresh_token"}, "salt", nil)
 			},
 			req: &pb.LoginUserRequest{
 				Login:    "username",
@@ -111,6 +111,7 @@ func TestLoginUser(t *testing.T) {
 			want: &pb.LoginUserResponse{
 				AuthToken:    "auth_token",
 				RefreshToken: "refresh_token",
+				Salt:         "salt",
 			},
 			errCode: codes.OK,
 		},
@@ -120,7 +121,7 @@ func TestLoginUser(t *testing.T) {
 				us.EXPECT().LogInUser(mock.AnythingOfType("*context.emptyCtx"), &models.User{
 					Login:    "username",
 					Password: "password",
-				}).Return(nil, errors.Join(constants.ErrInvalidCredentials, constants.ErrUserNotFound))
+				}).Return(nil, "", errors.Join(constants.ErrInvalidCredentials, constants.ErrUserNotFound))
 			},
 			req: &pb.LoginUserRequest{
 				Login:    "username",

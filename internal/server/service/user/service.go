@@ -62,33 +62,33 @@ func (s *ServiceImpl) CreateUser(ctx context.Context, user *models.User) (*model
 	return session, nil
 }
 
-// LogInUser logs in a user and returns a new session for the logged-in user, or an error if any occurs.
-func (s *ServiceImpl) LogInUser(ctx context.Context, user *models.User) (*models.Session, error) {
-	uid, hash, err := s.storage.GetIdPassByName(ctx, user.Login)
+// LogInUser logs in a user and returns a new session and salt for the logged-in user, or an error if any occurs.
+func (s *ServiceImpl) LogInUser(ctx context.Context, user *models.User) (*models.Session, string, error) {
+	uid, hash, salt, err := s.storage.GetUserDataByName(ctx, user.Login)
 	if err != nil {
 		if errors.Is(err, constants.ErrUserNotFound) {
-			return nil, errors.Join(constants.ErrInvalidCredentials, err)
+			return nil, "", errors.Join(constants.ErrInvalidCredentials, err)
 		}
-		return nil, err
+		return nil, "", err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(user.Password))
 	if err != nil {
-		return nil, errors.Join(constants.ErrInvalidCredentials, err)
+		return nil, "", errors.Join(constants.ErrInvalidCredentials, err)
 	}
 	session := &models.Session{UserID: uid}
 	session.ID, err = uuid.NewRandom()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	session.AuthToken, session.RefreshToken, err = s.tokenAuth.GenerateTokenPair(session.UserID, session.ID)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	err = s.storage.CreateSession(ctx, session, nil)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return session, nil
+	return session, salt, nil
 }
 
 // RefreshUserSession refreshes a user session and returns a new session for the user, or an error if any occurs.

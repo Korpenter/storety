@@ -15,8 +15,8 @@ type Storage interface {
 	// CreateUser creates a new user in the storage.
 	CreateUser(ctx context.Context, user *models.User) error
 
-	// GetIdPassByName retrieves the UUID and password for a user with the given username.
-	GetIdPassByName(ctx context.Context, username string) (uuid.UUID, string, error)
+	// GetUserDataByName retrieves the UUID, password and salt for a user with the given username.
+	GetUserDataByName(ctx context.Context, username string) (uuid.UUID, string, string, error)
 
 	// GetSession retrieves the user's UUID associated with the given session ID and refresh token.
 	GetSession(ctx context.Context, sessionID uuid.UUID, refreshToken string) (uuid.UUID, error)

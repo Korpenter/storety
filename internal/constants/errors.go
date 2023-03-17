@@ -8,7 +8,7 @@ var (
 	ErrUserExists = errors.New("username taken")
 
 	// ErrUserNotFound is returned when a user does not exist.
-	ErrUserNotFound = errors.New("username not found")
+	ErrUserNotFound = errors.New("user not found")
 
 	// ErrSessionNotFound is returned when a session does not exist.
 	ErrSessionNotFound = errors.New("session not found")

@@ -68,5 +68,5 @@ func main() {
 	userClient := service.NewUserClient(ctx, conn, cfg)
 	dataClient := service.NewDataClient(ctx, conn, cfg)
 	defer conn.Close()
-	cmd.Execute(userClient, dataClient, cryptoSvc)
+	cmd.Execute(cfg, userClient, dataClient, cryptoSvc)
 }

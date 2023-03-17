@@ -18,6 +18,7 @@ func (s *StoretyHandler) CreateUser(ctx context.Context, request *pb.CreateUserR
 	in := &models.User{
 		Login:    request.Login,
 		Password: request.Password,
+		Salt:     request.Salt,
 	}
 	if err := validators.ValidateAuthorization(in); err != nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%v: %v", constants.ErrInvalidCredentials, err))
@@ -41,14 +42,14 @@ func (s *StoretyHandler) LogInUser(ctx context.Context, request *pb.LoginUserReq
 	if err := validators.ValidateAuthorization(in); err != nil {
 		return nil, errors.Join(constants.ErrInvalidCredentials, err)
 	}
-	session, err := s.userService.LogInUser(ctx, in)
+	session, salt, err := s.userService.LogInUser(ctx, in)
 	if err != nil {
 		if errors.Is(err, constants.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%v: %v", constants.ErrInvalidCredentials, err))
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &pb.LoginUserResponse{AuthToken: session.AuthToken, RefreshToken: session.RefreshToken}, nil
+	return &pb.LoginUserResponse{AuthToken: session.AuthToken, RefreshToken: session.RefreshToken, Salt: salt}, nil
 }
 
 // RefreshUserSession refreshes the user's authentication and refresh tokens.

@@ -78,12 +78,13 @@ func (_c *UserService_CreateUser_Call) RunAndReturn(run func(context.Context, *m
 }
 
 // LogInUser provides a mock function with given fields: ctx, _a1
-func (_m *UserService) LogInUser(ctx context.Context, _a1 *models.User) (*models.Session, error) {
+func (_m *UserService) LogInUser(ctx context.Context, _a1 *models.User) (*models.Session, string, error) {
 	ret := _m.Called(ctx, _a1)
 
 	var r0 *models.Session
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.User) (*models.Session, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.User) (*models.Session, string, error)); ok {
 		return rf(ctx, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, *models.User) *models.Session); ok {
@@ -94,13 +95,19 @@ func (_m *UserService) LogInUser(ctx context.Context, _a1 *models.User) (*models
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *models.User) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *models.User) string); ok {
 		r1 = rf(ctx, _a1)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, *models.User) error); ok {
+		r2 = rf(ctx, _a1)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // UserService_LogInUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LogInUser'
@@ -122,12 +129,12 @@ func (_c *UserService_LogInUser_Call) Run(run func(ctx context.Context, _a1 *mod
 	return _c
 }
 
-func (_c *UserService_LogInUser_Call) Return(_a0 *models.Session, _a1 error) *UserService_LogInUser_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *UserService_LogInUser_Call) Return(_a0 *models.Session, _a1 string, _a2 error) *UserService_LogInUser_Call {
+	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *UserService_LogInUser_Call) RunAndReturn(run func(context.Context, *models.User) (*models.Session, error)) *UserService_LogInUser_Call {
+func (_c *UserService_LogInUser_Call) RunAndReturn(run func(context.Context, *models.User) (*models.Session, string, error)) *UserService_LogInUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -13,6 +13,7 @@ type Config struct {
 	JWTRefreshToken string `mapstructure:"jwt_refresh_token"`
 	CertFile        string `mapstructure:"cert_file"`
 	KeyFile         string `mapstructure:"key_file"`
+	SaltsFile       string `mapstructure:"salts_file"`
 	EncryptionKey   []byte
 }
 
@@ -25,6 +26,7 @@ func NewConfig() *Config {
 	viper.SetDefault("jwt_refresh_token", nil)
 	viper.SetDefault("cert_file", "cert.pem")
 	viper.SetDefault("key_file", "key.pem")
+	viper.SetDefault("salts_file", "salts.json")
 	c := &Config{}
 	viper.ReadInConfig()
 	if err := viper.Unmarshal(c); err != nil {
@@ -47,18 +49,7 @@ func (c *Config) UpdateTokens(auth, refresh string) error {
 
 // UpdateKey updates the encryption key in the config.
 // It takes a password string as a parameter and updates the configuration accordingly.
-func (c *Config) UpdateKey(password string) error {
-	key := []byte(password)
-	if len(key) < 32 {
-		for {
-			key = append(key, key[0])
-			if len(key) == 32 {
-				break
-			}
-		}
-	} else if len(key) > 32 {
-		key = key[:32]
-	}
+func (c *Config) UpdateKey(key []byte) error {
 	c.EncryptionKey = key
 	return nil
 }

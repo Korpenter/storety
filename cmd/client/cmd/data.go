@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/Mldlr/storety/internal/client/config"
 	"github.com/Mldlr/storety/internal/client/models"
 	"github.com/Mldlr/storety/internal/client/service"
 	"github.com/Mldlr/storety/internal/client/service/crypto"
@@ -12,12 +14,19 @@ import (
 )
 
 // dataClientCommand creates a cobra command for interacting with data service.
-func dataClientCommand() *cobra.Command {
+func dataClientCommand(cfg *config.Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "data",
 		Short: "Data service operations",
 		Long:  "Creating and deleting data",
-		Run:   func(cmd *cobra.Command, args []string) {},
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if cfg.EncryptionKey == nil {
+				return logError(fmt.Errorf("NOT LOGGED IN"))
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+		},
 	}
 	return cmd
 }

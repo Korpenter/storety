@@ -20,10 +20,6 @@ func (d *DB) CreateData(ctx context.Context, data *models.Data) error {
 	if res.RowsAffected() == 0 || err != nil {
 		return errors.Join(constants.ErrCreateData, err)
 	}
-	res, err = d.conn.Exec(ctx, updateDataVersion, data.UserID)
-	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(constants.ErrUpdateVersion, err)
-	}
 	return nil
 }
 
@@ -51,10 +47,6 @@ func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string
 	res, err := d.conn.Exec(ctx, deleteDataByName, name, userID)
 	if res.RowsAffected() == 0 || err != nil {
 		return errors.Join(constants.ErrDeleteData, err)
-	}
-	res, err = d.conn.Exec(ctx, updateDataVersion, userID)
-	if res.RowsAffected() == 0 || err != nil {
-		return errors.Join(constants.ErrCreateSession, err)
 	}
 	return nil
 }

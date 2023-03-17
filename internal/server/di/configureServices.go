@@ -2,8 +2,8 @@ package di
 
 import (
 	"github.com/Mldlr/storety/internal/server/pkg/token"
-	data2 "github.com/Mldlr/storety/internal/server/service/data"
-	user2 "github.com/Mldlr/storety/internal/server/service/user"
+	"github.com/Mldlr/storety/internal/server/service/data"
+	"github.com/Mldlr/storety/internal/server/service/user"
 	"github.com/samber/do"
 )
 
@@ -16,17 +16,17 @@ func configureServices(i *do.Injector) {
 			return tokenAuth, nil
 		},
 	)
-	dataService := data2.NewService(i)
+	dataService := data.NewService(i)
 	do.Provide(
 		i,
-		func(i *do.Injector) (data2.Service, error) {
+		func(i *do.Injector) (data.Service, error) {
 			return dataService, nil
 		},
 	)
-	userService := user2.NewService(i)
+	userService := user.NewService(i)
 	do.Provide(
 		i,
-		func(i *do.Injector) (user2.Service, error) {
+		func(i *do.Injector) (user.Service, error) {
 			return userService, nil
 		},
 	)

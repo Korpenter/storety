@@ -3,7 +3,7 @@ package interceptors
 import (
 	"context"
 	"github.com/Mldlr/storety/internal/client/config"
-	"github.com/Mldlr/storety/internal/client/utils"
+	"github.com/Mldlr/storety/internal/client/pkg/utils"
 	"github.com/Mldlr/storety/internal/constants"
 	pb "github.com/Mldlr/storety/internal/proto"
 	"go.etcd.io/etcd/api/v3/v3rpc/rpctypes"

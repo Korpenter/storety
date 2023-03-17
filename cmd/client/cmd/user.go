@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/Mldlr/storety/internal/client/service"
 	cobra "github.com/spf13/cobra"
 	"log"
@@ -60,9 +61,15 @@ func runLogInCmd(client *service.UserClient) RunEFunc {
 		username, password := args[0], args[1]
 		err := client.LogInUser(username, password)
 		if err != nil {
-			return logError(err)
+			log.Println("Failed to log in on remote server, attempting local login")
+			err = client.LocalLogin(username, password)
+			if err != nil {
+				return fmt.Errorf("failed local login: %v", err)
+			}
+			log.Println("Successful local log in")
+			return nil
 		}
-		log.Println("Successful log in")
+		log.Println("Successful remote log in")
 		return nil
 	}
 }

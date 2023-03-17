@@ -8,6 +8,7 @@ option go_package = "github.com/Mldlr/storety/internal/proto";
 message CreateUserRequest {
   string login = 1;
   string password = 2;
+  string salt = 3;
 }
 
 // CreateUserResponse is a message representing the response containing auth and refresh tokens after user creation.
@@ -26,6 +27,7 @@ message LoginUserRequest {
 message LoginUserResponse {
   string authToken = 1;
   string refreshToken = 2;
+  string salt = 3;
 }
 
 // RefreshUserSessionRequest is a message representing the request to refresh the user's session.

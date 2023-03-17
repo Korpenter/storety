@@ -3,18 +3,17 @@ CREATE TABLE IF NOT EXISTS users (
      id uuid UNIQUE NOT NULL PRIMARY KEY,
      username text UNIQUE NOT NULL,
      password text NOT NULL,
-     data_version int  NOT NULL DEFAULT 0,
+     salt     text NOT NULL,
      created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS data (
     id uuid UNIQUE NOT NULL PRIMARY KEY,
     user_id uuid NOT NULL,
-    version integer NOT NULL DEFAULT 0,
     name text NOT NULL,
     type varchar(10) CHECK (type IN ('Card', 'Cred', 'Binary', 'Text')),
     content bytea,
-    created_at timestamp  DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp  DEFAULT CURRENT_TIMESTAMP,
     deleted boolean NOT NULL DEFAULT false,
     UNIQUE (user_id, name),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE

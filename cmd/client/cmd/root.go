@@ -2,6 +2,7 @@
 package cmd
 
 import (
+	"github.com/Mldlr/storety/internal/client/config"
 	"github.com/Mldlr/storety/internal/client/service"
 	"github.com/Mldlr/storety/internal/client/service/crypto"
 	shell "github.com/brianstrauch/cobra-shell"
@@ -16,12 +17,12 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 var rootCmd = &cobra.Command{}
 
 // Execute initializes and runs the root command along with its subcommands.
-func Execute(userClient *service.UserClient, dataClient *service.DataClient, crypto *crypto.Crypto) {
+func Execute(cfg *config.Config, userClient *service.UserClient, dataClient *service.DataClient, crypto *crypto.Crypto) {
 	userCmd := userClientCommand()
 	userCmd.AddCommand(logInCmd(userClient))
 	userCmd.AddCommand(createUserCmd(userClient))
 	rootCmd.AddCommand(userCmd)
-	dataCmd := dataClientCommand()
+	dataCmd := dataClientCommand(cfg)
 	dataCmd.AddCommand(createCredentials(dataClient, crypto))
 	dataCmd.AddCommand(createCard(dataClient, crypto))
 	dataCmd.AddCommand(createText(dataClient, crypto))

@@ -16,7 +16,7 @@ func (d *DB) CreateUser(ctx context.Context, user *models.User) error {
 		return err
 	}
 	defer d.commitTx(ctx, tx, err)
-	err = tx.QueryRow(ctx, createUser, user.ID, user.Login, user.Password).Scan(&user.ID)
+	err = tx.QueryRow(ctx, createUser, user.ID, user.Login, user.Password, user.Salt).Scan(&user.ID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return constants.ErrUserExists
@@ -26,17 +26,17 @@ func (d *DB) CreateUser(ctx context.Context, user *models.User) error {
 	return nil
 }
 
-// GetIdPassByName retrieves the user id and password for a specific user.
+// GetUserDataByName retrieves the user id, password and salt for a specific user.
 // It returns the user's UUID, password, and any error that occurs.
-func (d *DB) GetIdPassByName(ctx context.Context, username string) (uuid.UUID, string, error) {
-	var password string
+func (d *DB) GetUserDataByName(ctx context.Context, username string) (uuid.UUID, string, string, error) {
+	var password, salt string
 	var id uuid.UUID
-	err := d.conn.QueryRow(ctx, getUserByName, username).Scan(&id, &password)
+	err := d.conn.QueryRow(ctx, getUserDataByName, username).Scan(&id, &password, &salt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return uuid.Nil, "", constants.ErrUserNotFound
+			return uuid.Nil, "", "", constants.ErrUserNotFound
 		}
-		return uuid.Nil, "", err
+		return uuid.Nil, "", "", err
 	}
-	return id, password, nil
+	return id, password, "", nil
 }

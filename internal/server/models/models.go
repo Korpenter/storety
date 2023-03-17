@@ -8,6 +8,7 @@ type User struct {
 	ID       uuid.UUID
 	Login    string
 	Password string
+	Salt     string
 }
 
 // SessionKey for retrieval of the session from the context.

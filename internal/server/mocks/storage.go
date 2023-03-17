@@ -316,68 +316,6 @@ func (_c *Storage_GetDataContentByName_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// GetIdPassByName provides a mock function with given fields: ctx, username
-func (_m *Storage) GetIdPassByName(ctx context.Context, username string) (uuid.UUID, string, error) {
-	ret := _m.Called(ctx, username)
-
-	var r0 uuid.UUID
-	var r1 string
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (uuid.UUID, string, error)); ok {
-		return rf(ctx, username)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) uuid.UUID); ok {
-		r0 = rf(ctx, username)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(uuid.UUID)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) string); ok {
-		r1 = rf(ctx, username)
-	} else {
-		r1 = ret.Get(1).(string)
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, string) error); ok {
-		r2 = rf(ctx, username)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// Storage_GetIdPassByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetIdPassByName'
-type Storage_GetIdPassByName_Call struct {
-	*mock.Call
-}
-
-// GetIdPassByName is a helper method to define mock.On call
-//   - ctx context.Context
-//   - username string
-func (_e *Storage_Expecter) GetIdPassByName(ctx interface{}, username interface{}) *Storage_GetIdPassByName_Call {
-	return &Storage_GetIdPassByName_Call{Call: _e.mock.On("GetIdPassByName", ctx, username)}
-}
-
-func (_c *Storage_GetIdPassByName_Call) Run(run func(ctx context.Context, username string)) *Storage_GetIdPassByName_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *Storage_GetIdPassByName_Call) Return(_a0 uuid.UUID, _a1 string, _a2 error) *Storage_GetIdPassByName_Call {
-	_c.Call.Return(_a0, _a1, _a2)
-	return _c
-}
-
-func (_c *Storage_GetIdPassByName_Call) RunAndReturn(run func(context.Context, string) (uuid.UUID, string, error)) *Storage_GetIdPassByName_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetSession provides a mock function with given fields: ctx, sessionID, refreshToken
 func (_m *Storage) GetSession(ctx context.Context, sessionID uuid.UUID, refreshToken string) (uuid.UUID, error) {
 	ret := _m.Called(ctx, sessionID, refreshToken)
@@ -430,6 +368,75 @@ func (_c *Storage_GetSession_Call) Return(_a0 uuid.UUID, _a1 error) *Storage_Get
 }
 
 func (_c *Storage_GetSession_Call) RunAndReturn(run func(context.Context, uuid.UUID, string) (uuid.UUID, error)) *Storage_GetSession_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUserDataByName provides a mock function with given fields: ctx, username
+func (_m *Storage) GetUserDataByName(ctx context.Context, username string) (uuid.UUID, string, string, error) {
+	ret := _m.Called(ctx, username)
+
+	var r0 uuid.UUID
+	var r1 string
+	var r2 string
+	var r3 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (uuid.UUID, string, string, error)); ok {
+		return rf(ctx, username)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) uuid.UUID); ok {
+		r0 = rf(ctx, username)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(uuid.UUID)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) string); ok {
+		r1 = rf(ctx, username)
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, string) string); ok {
+		r2 = rf(ctx, username)
+	} else {
+		r2 = ret.Get(2).(string)
+	}
+
+	if rf, ok := ret.Get(3).(func(context.Context, string) error); ok {
+		r3 = rf(ctx, username)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
+}
+
+// Storage_GetUserDataByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserDataByName'
+type Storage_GetUserDataByName_Call struct {
+	*mock.Call
+}
+
+// GetUserDataByName is a helper method to define mock.On call
+//   - ctx context.Context
+//   - username string
+func (_e *Storage_Expecter) GetUserDataByName(ctx interface{}, username interface{}) *Storage_GetUserDataByName_Call {
+	return &Storage_GetUserDataByName_Call{Call: _e.mock.On("GetUserDataByName", ctx, username)}
+}
+
+func (_c *Storage_GetUserDataByName_Call) Run(run func(ctx context.Context, username string)) *Storage_GetUserDataByName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *Storage_GetUserDataByName_Call) Return(_a0 uuid.UUID, _a1 string, _a2 string, _a3 error) *Storage_GetUserDataByName_Call {
+	_c.Call.Return(_a0, _a1, _a2, _a3)
+	return _c
+}
+
+func (_c *Storage_GetUserDataByName_Call) RunAndReturn(run func(context.Context, string) (uuid.UUID, string, string, error)) *Storage_GetUserDataByName_Call {
 	_c.Call.Return(run)
 	return _c
 }

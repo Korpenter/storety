@@ -38,8 +38,6 @@ func TestDB_CreateData(t *testing.T) {
 			mock.ExpectBegin()
 			mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO data`)).
 				WithArgs(id, userID, "data", "binary", []byte{123}).WillReturnResult(tt.resIns)
-			mock.ExpectExec(regexp.QuoteMeta(`UPDATE users SET data_version = data_version + 1`)).
-				WithArgs(userID).WillReturnResult(tt.resUpd)
 			mock.ExpectCommit()
 
 			db := &DB{conn: mock}
@@ -142,8 +140,6 @@ func TestDeleteDataByName(t *testing.T) {
 			mock.ExpectExec(regexp.QuoteMeta(`UPDATE data SET`)).
 				WithArgs(tt.dataName, userID).WillReturnResult(tt.resIns)
 			if tt.wantErr == nil {
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users SET data_version = data_version + 1`)).
-					WithArgs(userID).WillReturnResult(tt.resUpd)
 				mock.ExpectCommit()
 			}
 			db := &DB{conn: mock}

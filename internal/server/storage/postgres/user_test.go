@@ -41,13 +41,14 @@ func TestDB_CreateUser(t *testing.T) {
 
 			mockPool.ExpectBegin()
 			mockPool.ExpectQuery(regexp.QuoteMeta(`INSERT INTO users`)).
-				WithArgs(id, "login", "password").WillReturnRows(tt.rows)
+				WithArgs(id, "login", "password", "salt").WillReturnRows(tt.rows)
 			mockPool.ExpectCommit()
 
 			u := &models.User{
 				ID:       id,
 				Login:    "login",
 				Password: "password",
+				Salt:     "salt",
 			}
 			db := &DB{conn: mockPool}
 			err = db.CreateUser(context.Background(), u)
@@ -60,7 +61,7 @@ func TestDB_CreateUser(t *testing.T) {
 	}
 }
 
-func TestDB_GetIdPassByName(t *testing.T) {
+func TestDB_GetUserDataByName(t *testing.T) {
 	id, err := uuid.NewRandom()
 	assert.NoError(t, err)
 
@@ -72,13 +73,13 @@ func TestDB_GetIdPassByName(t *testing.T) {
 	}{
 		{
 			name:    "Get id",
-			rows:    pgxmock.NewRows([]string{"id", "password"}).AddRow(id, "password"),
+			rows:    pgxmock.NewRows([]string{"id", "password", "salt"}).AddRow(id, "password", "salt"),
 			wantID:  id,
 			wantErr: nil,
 		},
 		{
 			name:    "Try to get id for nonexistent user",
-			rows:    pgxmock.NewRows([]string{"id", "password"}),
+			rows:    pgxmock.NewRows([]string{"id", "password", "salt"}),
 			wantID:  uuid.Nil,
 			wantErr: constants.ErrUserNotFound,
 		},
@@ -93,7 +94,7 @@ func TestDB_GetIdPassByName(t *testing.T) {
 
 			mock.ExpectQuery("SELECT id, password").WithArgs("login").WillReturnRows(tt.rows)
 			db := &DB{conn: mock}
-			uid, password, err := db.GetIdPassByName(context.Background(), "login")
+			uid, password, _, err := db.GetUserDataByName(context.Background(), "login")
 			if tt.wantErr == nil {
 				assert.Equal(t, "password", password)
 			}
