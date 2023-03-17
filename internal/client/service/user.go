@@ -46,25 +46,18 @@ func (c *UserClient) CreateUser(username, password string) error {
 		Password: password,
 		Salt:     base64.StdEncoding.EncodeToString(salt),
 	}
-	fmt.Println(request)
 	result, err := c.userClient.CreateUser(c.ctx, request)
 	if err != nil {
 		return err
 	}
-	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
-	if err != nil {
-		return err
-	}
+	c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
 	key := pbkdf2.Key([]byte(password), salt, 10000, 32, sha256.New)
 	hashedKey, err := bcrypt.GenerateFromPassword(key, 14)
 	if err != nil {
 		return err
 	}
-	err = c.cfg.UpdateKey(key)
-	if err != nil {
-		return err
-	}
-	err = utils.SaveHashedKeyAndSalt(c.cfg.SaltsFile, username, hashedKey, salt)
+	c.cfg.UpdateKey(key)
+	err = utils.SaveAuthData(c.cfg.SaltsFile, username, hashedKey, salt, result.AuthToken, result.RefreshToken)
 	if err != nil {
 		return err
 	}
@@ -82,10 +75,7 @@ func (c *UserClient) LogInUser(username, password string) error {
 	if err != nil {
 		return err
 	}
-	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
-	if err != nil {
-		return err
-	}
+	c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
 	salt, err := base64.StdEncoding.DecodeString(result.Salt)
 	if err != nil {
 		return err
@@ -95,11 +85,8 @@ func (c *UserClient) LogInUser(username, password string) error {
 	if err != nil {
 		return err
 	}
-	err = c.cfg.UpdateKey(key)
-	if err != nil {
-		return err
-	}
-	err = utils.SaveHashedKeyAndSalt(c.cfg.SaltsFile, username, hashedKey, salt)
+	c.cfg.UpdateKey(key)
+	err = utils.SaveAuthData(c.cfg.SaltsFile, username, hashedKey, salt, result.AuthToken, result.RefreshToken)
 	if err != nil {
 		return err
 	}
@@ -108,7 +95,7 @@ func (c *UserClient) LogInUser(username, password string) error {
 
 // LocalLogin makes an attempt to authorize user locally.
 func (c *UserClient) LocalLogin(username, password string) error {
-	hashedKey, salt, err := utils.GetHashedKeyAndSalt(c.cfg.SaltsFile, username)
+	hashedKey, salt, authToken, refreshToken, err := utils.GetAuthData(c.cfg.SaltsFile, username)
 	if err != nil {
 		if errors.Is(err, constants.ErrUserNotFound) {
 			return fmt.Errorf("no local data found for %s, login/register remote first", username)
@@ -118,10 +105,8 @@ func (c *UserClient) LocalLogin(username, password string) error {
 		return err
 	}
 	key := pbkdf2.Key([]byte(password), salt, 10000, 32, sha256.New)
-	err = c.cfg.UpdateKey(key)
-	if err != nil {
-		return err
-	}
+	c.cfg.UpdateKey(key)
+	c.cfg.UpdateTokens(authToken, refreshToken)
 	err = bcrypt.CompareHashAndPassword(hashedKey, key)
 	if err != nil {
 		return constants.ErrInvalidCredentials
@@ -136,9 +121,6 @@ func (c *UserClient) RefreshToken() error {
 	if err != nil {
 		return err
 	}
-	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
-	if err != nil {
-		return err
-	}
+	c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
 	return nil
 }

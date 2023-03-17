@@ -30,8 +30,10 @@ type Binary struct {
 	Meta string `json:"meta"`
 }
 
-// HashedSalt is a struct that represents a hashed key and a salt.
-type HashedSalt struct {
-	HashedKey string `json:"hashed_key"`
-	Salt      string `json:"salt"`
+// AuthData is a struct that represents a hashed key, salt and tokens locally stored for user.
+type AuthData struct {
+	HashedKey    string `json:"hashed_key"`
+	Salt         string `json:"salt"`
+	AuthToken    string `json:"auth_token"`
+	RefreshToken string `json:"refresh_token"`
 }

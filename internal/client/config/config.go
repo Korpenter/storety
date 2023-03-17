@@ -9,8 +9,8 @@ import (
 // Config is the configuration for the Storety client.
 type Config struct {
 	ServiceAddress  string `mapstructure:"service_address"`
-	JWTAuthToken    string `mapstructure:"jwt_auth_token"`
-	JWTRefreshToken string `mapstructure:"jwt_refresh_token"`
+	JWTAuthToken    string
+	JWTRefreshToken string
 	CertFile        string `mapstructure:"cert_file"`
 	KeyFile         string `mapstructure:"key_file"`
 	SaltsFile       string `mapstructure:"salts_file"`
@@ -38,18 +38,13 @@ func NewConfig() *Config {
 
 // UpdateTokens updates the tokens in the config.
 // It takes the new auth and refresh tokens as parameters and updates the configuration accordingly.
-func (c *Config) UpdateTokens(auth, refresh string) error {
+func (c *Config) UpdateTokens(auth, refresh string) {
 	c.JWTAuthToken = auth
 	c.JWTRefreshToken = refresh
-	viper.Set("jwt_auth_token", auth)
-	viper.Set("jwt_refresh_token", refresh)
-	viper.WriteConfig()
-	return nil
 }
 
 // UpdateKey updates the encryption key in the config.
 // It takes a password string as a parameter and updates the configuration accordingly.
-func (c *Config) UpdateKey(key []byte) error {
+func (c *Config) UpdateKey(key []byte) {
 	c.EncryptionKey = key
-	return nil
 }
