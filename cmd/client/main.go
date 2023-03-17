@@ -26,6 +26,7 @@ var (
 // NA is the string output if build info is not set
 const NA string = "N/A"
 
+// Cobra client, to call promt use ./client shell
 func main() {
 	if len(buildVersion) == 0 {
 		buildVersion = NA
