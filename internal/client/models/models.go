@@ -1,6 +1,11 @@
 // Package models contains all the models used by the client.
 package models
 
+import (
+	"github.com/google/uuid"
+	"time"
+)
+
 // Credentials is a struct that represents a credentials pair.
 type Credentials struct {
 	Login    string `json:"login"`
@@ -36,4 +41,22 @@ type AuthData struct {
 	Salt         string `json:"salt"`
 	AuthToken    string `json:"auth_token"`
 	RefreshToken string `json:"refresh_token"`
+}
+
+// Data is the data model.
+type Data struct {
+	ID        uuid.UUID
+	Name      string
+	Type      string
+	Content   []byte
+	UpdatedAt time.Time
+	Synced    bool
+	Deleted   bool
+}
+
+// DataInfo is the data info model.
+type DataInfo struct {
+	Name   string
+	Type   string
+	Synced bool
 }

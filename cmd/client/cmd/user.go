@@ -2,13 +2,18 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/Mldlr/storety/internal/client/config"
+	"github.com/Mldlr/storety/internal/client/pkg/helpers"
 	"github.com/Mldlr/storety/internal/client/service"
+	"github.com/Mldlr/storety/internal/client/storage/sqlite"
+	"github.com/samber/do"
 	cobra "github.com/spf13/cobra"
+	"google.golang.org/grpc"
 	"log"
 )
 
 // userClientCommand creates a cobra command for interacting with the user service.
-func userClientCommand() *cobra.Command {
+func userClientCommand(i *do.Injector) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "user",
 		Short: "User service operations",
@@ -19,57 +24,75 @@ func userClientCommand() *cobra.Command {
 }
 
 // createUserCmd creates a cobra command for creating a new user.
-func createUserCmd(client *service.UserClient) *cobra.Command {
+func createUserCmd(i *do.Injector) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [name] [password]",
 		Short: "Create new account",
 		Long:  "",
 		Args:  cobra.ExactArgs(2),
-		RunE:  runCreateUserCmd(client),
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			conn := do.MustInvoke[*grpc.ClientConn](i)
+			if conn == nil {
+				return helpers.LogError(fmt.Errorf("NO SERVER CONNECTION"))
+			}
+			return nil
+		},
+		RunE: runCreateUserCmd(i),
 	}
 	return cmd
 }
 
 // logInCmd creates a cobra command for logging in a user.
-func logInCmd(client *service.UserClient) *cobra.Command {
+func logInCmd(i *do.Injector) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "login [name] [password]",
 		Short: "Log into account",
 		Long:  "",
 		Args:  cobra.ExactArgs(2),
-		RunE:  runLogInCmd(client),
+		RunE:  runLogInCmd(i),
 	}
 	return cmd
 }
 
 // runCreateUserCmd returns a RunEFunc that serves as a CLI wrapper for client.CreateUser.
-func runCreateUserCmd(client *service.UserClient) RunEFunc {
+func runCreateUserCmd(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
+		cfg := do.MustInvoke[*config.Config](i)
+		userService := do.MustInvoke[service.UserService](i)
+		dataService := do.MustInvoke[service.DataService](i)
 		username, password := args[0], args[1]
-		err := client.CreateUser(username, password)
+		err := userService.CreateUser(username, password)
 		if err != nil {
-			return logError(err)
+			return helpers.LogError(err)
 		}
 		log.Println("Successfully created new user")
+		db, err := sqlite.NewDB(cfg.DBFilePrefix, username)
+		if err != nil {
+			return helpers.LogError(fmt.Errorf("failed to create new local database, u can continue using remote: %v", err))
+		}
+		dataService.SetStorage(db)
+		log.Println("Successfully initiated new local database")
 		return nil
 	}
 }
 
 // runLogInCmd returns a RunEFunc that serves as a CLI wrapper for client.LogInUser.
-func runLogInCmd(client *service.UserClient) RunEFunc {
+func runLogInCmd(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
+		userService := do.MustInvoke[service.UserService](i)
+		dataService := do.MustInvoke[service.DataService](i)
+		cfg := do.MustInvoke[*config.Config](i)
 		username, password := args[0], args[1]
-		err := client.LogInUser(username, password)
+		err := userService.LogInUser(username, password)
 		if err != nil {
-			log.Println("Failed to log in on remote server, attempting local login")
-			err = client.LocalLogin(username, password)
-			if err != nil {
-				return fmt.Errorf("failed local login: %v", err)
-			}
-			log.Println("Successful local log in")
-			return nil
+			return helpers.LogError(err)
 		}
-		log.Println("Successful remote log in")
+		log.Println("Successfully logged in")
+		db, err := sqlite.NewDB(cfg.DBFilePrefix, username)
+		if err != nil {
+			return helpers.LogError(fmt.Errorf("failed to locate or create local database: %v", err))
+		}
+		dataService.SetStorage(db)
 		return nil
 	}
 }

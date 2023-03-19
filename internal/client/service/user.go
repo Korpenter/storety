@@ -8,34 +8,45 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Mldlr/storety/internal/client/config"
+	"github.com/Mldlr/storety/internal/client/pkg/helpers"
 	"github.com/Mldlr/storety/internal/client/pkg/utils"
 	"github.com/Mldlr/storety/internal/constants"
 	pb "github.com/Mldlr/storety/internal/proto"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/pbkdf2"
 	"google.golang.org/grpc"
+	"log"
 	"os"
 )
 
-// UserClient is a client for the User service.
-type UserClient struct {
-	ctx        context.Context
-	userClient pb.UserClient
-	cfg        *config.Config
+// UserService is the interface for the user service.
+type UserService interface {
+	CreateUser(username, password string) error
+	LogInUser(username, password string) error
+	RefreshToken() error
 }
 
-// NewUserClient creates a new UserClient instance and returns a pointer to it.
+// UserServiceImpl is a client for the User service.
+type UserServiceImpl struct {
+	ctx          context.Context
+	conn         *grpc.ClientConn
+	remoteClient pb.UserClient
+	cfg          *config.Config
+}
+
+// NewUserService creates a new UserServiceImpl instance and returns a pointer to it.
 // It takes a context, a gRPC client connection, and a configuration object as parameters.
-func NewUserClient(ctx context.Context, conn *grpc.ClientConn, cfg *config.Config) *UserClient {
-	return &UserClient{
-		ctx:        ctx,
-		userClient: pb.NewUserClient(conn),
-		cfg:        cfg,
+func NewUserService(ctx context.Context, conn *grpc.ClientConn, cfg *config.Config) *UserServiceImpl {
+	return &UserServiceImpl{
+		ctx:          ctx,
+		conn:         conn,
+		remoteClient: pb.NewUserClient(conn),
+		cfg:          cfg,
 	}
 }
 
 // CreateUser makes a request to the CreateUser RPC to create a new user and updates the config.
-func (c *UserClient) CreateUser(username, password string) error {
+func (c *UserServiceImpl) CreateUser(username, password string) error {
 	salt := make([]byte, 16)
 	_, err := rand.Read(salt)
 	if err != nil {
@@ -46,11 +57,14 @@ func (c *UserClient) CreateUser(username, password string) error {
 		Password: password,
 		Salt:     base64.StdEncoding.EncodeToString(salt),
 	}
-	result, err := c.userClient.CreateUser(c.ctx, request)
+	result, err := c.remoteClient.CreateUser(c.ctx, request)
 	if err != nil {
 		return err
 	}
-	c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+	if err != nil {
+		return err
+	}
 	key := pbkdf2.Key([]byte(password), salt, 10000, 32, sha256.New)
 	hashedKey, err := bcrypt.GenerateFromPassword(key, 14)
 	if err != nil {
@@ -61,21 +75,47 @@ func (c *UserClient) CreateUser(username, password string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
-// LogInUser makes a request to the LogInUser RPC to log in a user and updates the config.
-func (c *UserClient) LogInUser(username, password string) error {
+// LogInUser attempts user authorization on the remote server and if it fails, attempts local authorization.
+func (c *UserServiceImpl) LogInUser(username, password string) error {
+	switch {
+	case c.conn != nil:
+		err := c.remoteLogInUser(username, password)
+		if err != nil {
+			log.Println("Failed to log in on remote server, attempting local login")
+		} else {
+			log.Println("Successful remote log in")
+			return nil
+		}
+		fallthrough
+	default:
+		log.Println("attempting local login")
+		err := c.localLogin(username, password)
+		if err != nil {
+			return helpers.LogError(fmt.Errorf("failed local login: %v", err))
+		}
+		return nil
+	}
+}
+
+// remoteLogInUser makes a request to the LogInUser RPC to log in a user and updates the config.
+func (c *UserServiceImpl) remoteLogInUser(username, password string) error {
 	request := &pb.LoginUserRequest{
 		Login:    username,
 		Password: password,
 	}
 
-	result, err := c.userClient.LogInUser(c.ctx, request)
+	result, err := c.remoteClient.LogInUser(c.ctx, request)
 	if err != nil {
 		return err
 	}
-	c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+	if err != nil {
+		return err
+	}
 	salt, err := base64.StdEncoding.DecodeString(result.Salt)
 	if err != nil {
 		return err
@@ -90,11 +130,12 @@ func (c *UserClient) LogInUser(username, password string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
-// LocalLogin makes an attempt to authorize user locally.
-func (c *UserClient) LocalLogin(username, password string) error {
+// localLogin makes an attempt to authorize user locally.
+func (c *UserServiceImpl) localLogin(username, password string) error {
 	hashedKey, salt, authToken, refreshToken, err := utils.GetAuthData(c.cfg.SaltsFile, username)
 	if err != nil {
 		if errors.Is(err, constants.ErrUserNotFound) {
@@ -115,12 +156,15 @@ func (c *UserClient) LocalLogin(username, password string) error {
 }
 
 // RefreshToken makes a request to the RefreshUserSession RPC to refresh the user's session and updates the config.
-func (c *UserClient) RefreshToken() error {
+func (c *UserServiceImpl) RefreshToken() error {
 	request := &pb.RefreshUserSessionRequest{}
-	result, err := c.userClient.RefreshUserSession(c.ctx, request)
+	result, err := c.remoteClient.RefreshUserSession(c.ctx, request)
 	if err != nil {
 		return err
 	}
-	c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+	err = c.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+	if err != nil {
+		return err
+	}
 	return nil
 }

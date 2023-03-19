@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS data (
     id uuid UNIQUE NOT NULL PRIMARY KEY,
     user_id uuid NOT NULL,
-    name text NOT NULL,
+    name text,
     type varchar(10) CHECK (type IN ('Card', 'Cred', 'Binary', 'Text')),
     content bytea,
     updated_at timestamp  DEFAULT CURRENT_TIMESTAMP,

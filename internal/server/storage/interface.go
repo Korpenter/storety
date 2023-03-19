@@ -25,7 +25,7 @@ type Storage interface {
 	CreateSession(ctx context.Context, session, oldSession *models.Session) error
 
 	// CreateData creates a new data entry in the storage for a user.
-	CreateData(ctx context.Context, data *models.Data) error
+	CreateData(ctx context.Context, userID uuid.UUID, data *models.Data) error
 
 	// GetDataContentByName retrieves the content and type of data entry by name for the given user's UUID.
 	GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error)
@@ -35,4 +35,7 @@ type Storage interface {
 
 	// DeleteDataByName deletes a data entry by name for the given user's UUID.
 	DeleteDataByName(ctx context.Context, userID uuid.UUID, name string) error
+
+	// SyncData adds not synced data syncs client data.
+	SyncData(ctx context.Context, userID uuid.UUID, syncBatch models.SyncData) ([]models.Data, error)
 }

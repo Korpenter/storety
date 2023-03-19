@@ -2,12 +2,9 @@
 package cmd
 
 import (
-	"github.com/Mldlr/storety/internal/client/config"
-	"github.com/Mldlr/storety/internal/client/service"
-	"github.com/Mldlr/storety/internal/client/service/crypto"
 	shell "github.com/brianstrauch/cobra-shell"
+	"github.com/samber/do"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 // RunEFunc is a function type that can be used as a cobra command's RunE function.
@@ -17,28 +14,21 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 var rootCmd = &cobra.Command{}
 
 // Execute initializes and runs the root command along with its subcommands.
-func Execute(cfg *config.Config, userClient *service.UserClient, dataClient *service.DataClient, crypto *crypto.Crypto) {
-	userCmd := userClientCommand()
-	userCmd.AddCommand(logInCmd(userClient))
-	userCmd.AddCommand(createUserCmd(userClient))
+func Execute(i *do.Injector) {
+	userCmd := userClientCommand(i)
+	userCmd.AddCommand(logInCmd(i))
+	userCmd.AddCommand(createUserCmd(i))
 	rootCmd.AddCommand(userCmd)
-	dataCmd := dataClientCommand(cfg)
-	dataCmd.AddCommand(createCredentials(dataClient, crypto))
-	dataCmd.AddCommand(createCard(dataClient, crypto))
-	dataCmd.AddCommand(createText(dataClient, crypto))
-	dataCmd.AddCommand(createBinary(dataClient, crypto))
-	dataCmd.AddCommand(listData(dataClient))
-	dataCmd.AddCommand(getData(dataClient, crypto))
-	dataCmd.AddCommand(deleteData(dataClient))
+	dataCmd := dataClientCommand(i)
+	dataCmd.AddCommand(createCredentials(i))
+	dataCmd.AddCommand(createCard(i))
+	dataCmd.AddCommand(createText(i))
+	dataCmd.AddCommand(createBinary(i))
+	dataCmd.AddCommand(listData(i))
+	dataCmd.AddCommand(getData(i))
+	dataCmd.AddCommand(deleteData(i))
+	dataCmd.AddCommand(syncData(i))
 	rootCmd.AddCommand(dataCmd)
 	rootCmd.AddCommand(shell.New(rootCmd, nil))
 	_ = rootCmd.Execute()
-}
-
-// logError logs an error if it is not nil.
-func logError(err error) error {
-	if err != nil {
-		log.Println("Error running command: ", err)
-	}
-	return err
 }

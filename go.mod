@@ -9,6 +9,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/pashagolub/pgxmock/v2 v2.5.0
 	github.com/pressly/goose/v3 v3.9.0
 	github.com/samber/do v1.6.0

@@ -56,8 +56,12 @@ func (r *RetryClientInterceptor) UnaryInterceptor(ctx context.Context, method st
 			if err != nil {
 				return err
 			}
-			r.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
-			return nil
+			err = r.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
+			if err == nil {
+				log.Println("token refreshed")
+				return nil
+			}
+			continue
 		}
 	}
 	return lastErr

@@ -52,7 +52,9 @@ const (
     user_id,
     name,
     type,
-    content
+    content,
+	updated_at,
+	deleted
 	)
 	SELECT
 		$1,
@@ -72,7 +74,9 @@ const (
 			ELSE $3
 		END,
 		$4,
-		$5
+		$5,
+		$6,
+		$7
 `
 
 	// getDataContentByName is a query to get the content and type of a data record by its name and user ID.
@@ -89,6 +93,20 @@ const (
 
 	// deleteDataByName is a query to delete a data record by its name and user ID.
 	deleteDataByName = `
-	UPDATE data SET deleted = true, content = null, updated_at = CURRENT_TIMESTAMP,
+	UPDATE data
+	SET name = NULL, deleted = true, content = null, updated_at = CURRENT_TIMESTAMP
 	WHERE name = $1 AND user_id = $2`
+
+	// deleteDataByID is a query to delete a data record by its ID and user ID.
+	deleteDataByID = `
+	UPDATE data 
+	SET name = NULL, deleted = true, content = null, updated_at = $3
+    WHERE id = $1 AND user_id = $2 AND updated_at < $3`
+
+	// getDataBySyncTime is a query to get all data records for user that were updated after last client sync.
+	getDataBySyncTime = `
+	SELECT id, name, type, content, updated_at, deleted
+	FROM data 
+	WHERE user_id = $1 AND updated_at > $2
+`
 )

@@ -22,16 +22,16 @@ func NewService(i *do.Injector) *ServiceImpl {
 }
 
 // CreateData creates a new data entry for the specified user.
-func (s *ServiceImpl) CreateData(ctx context.Context, data *models.Data) error {
+func (s *ServiceImpl) CreateData(ctx context.Context, userID uuid.UUID, data *models.Data) error {
 	var err error
 	data.ID, err = uuid.NewRandom()
 	if err != nil {
 		return err
 	}
-	return s.storage.CreateData(ctx, data)
+	return s.storage.CreateData(ctx, userID, data)
 }
 
-// GetDataContent retrieves the content and content type of a specified data entry for a user.
+// GetDataContent retrieves the content and content type of specified data entry for a user.
 func (s *ServiceImpl) GetDataContent(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	return s.storage.GetDataContentByName(ctx, userID, name)
 }
@@ -44,4 +44,9 @@ func (s *ServiceImpl) DeleteData(ctx context.Context, userID uuid.UUID, name str
 // ListData retrieves a list of all data entries associated with a user.
 func (s *ServiceImpl) ListData(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error) {
 	return s.storage.GetAllDataInfo(ctx, userID)
+}
+
+// SyncData adds not synced data syncs client data.
+func (s *ServiceImpl) SyncData(ctx context.Context, userID uuid.UUID, syncData models.SyncData) ([]models.Data, error) {
+	return s.storage.SyncData(ctx, userID, syncData)
 }

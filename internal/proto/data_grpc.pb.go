@@ -26,6 +26,7 @@ type DataClient interface {
 	GetContent(ctx context.Context, in *GetContentRequest, opts ...grpc.CallOption) (*GetContentResponse, error)
 	ListData(ctx context.Context, in *ListDataRequest, opts ...grpc.CallOption) (*ListDataResponse, error)
 	DeleteData(ctx context.Context, in *DeleteDataRequest, opts ...grpc.CallOption) (*DeleteDataResponse, error)
+	SyncData(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error)
 }
 
 type dataClient struct {
@@ -72,6 +73,15 @@ func (c *dataClient) DeleteData(ctx context.Context, in *DeleteDataRequest, opts
 	return out, nil
 }
 
+func (c *dataClient) SyncData(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error) {
+	out := new(SyncResponse)
+	err := c.cc.Invoke(ctx, "/proto.Data/SyncData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DataServer is the server API for Data service.
 // All implementations must embed UnimplementedDataServer
 // for forward compatibility
@@ -80,6 +90,7 @@ type DataServer interface {
 	GetContent(context.Context, *GetContentRequest) (*GetContentResponse, error)
 	ListData(context.Context, *ListDataRequest) (*ListDataResponse, error)
 	DeleteData(context.Context, *DeleteDataRequest) (*DeleteDataResponse, error)
+	SyncData(context.Context, *SyncRequest) (*SyncResponse, error)
 	mustEmbedUnimplementedDataServer()
 }
 
@@ -98,6 +109,9 @@ func (UnimplementedDataServer) ListData(context.Context, *ListDataRequest) (*Lis
 }
 func (UnimplementedDataServer) DeleteData(context.Context, *DeleteDataRequest) (*DeleteDataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteData not implemented")
+}
+func (UnimplementedDataServer) SyncData(context.Context, *SyncRequest) (*SyncResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncData not implemented")
 }
 func (UnimplementedDataServer) mustEmbedUnimplementedDataServer() {}
 
@@ -184,6 +198,24 @@ func _Data_DeleteData_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Data_SyncData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataServer).SyncData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Data/SyncData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataServer).SyncData(ctx, req.(*SyncRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Data_ServiceDesc is the grpc.ServiceDesc for Data service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +238,10 @@ var Data_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteData",
 			Handler:    _Data_DeleteData_Handler,
+		},
+		{
+			MethodName: "SyncData",
+			Handler:    _Data_SyncData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -14,6 +14,7 @@ type Config struct {
 	CertFile        string `mapstructure:"cert_file"`
 	KeyFile         string `mapstructure:"key_file"`
 	SaltsFile       string `mapstructure:"salts_file"`
+	DBFilePrefix    string `mapstructure:"db_path"`
 	EncryptionKey   []byte
 }
 
@@ -27,6 +28,7 @@ func NewConfig() *Config {
 	viper.SetDefault("cert_file", "cert.pem")
 	viper.SetDefault("key_file", "key.pem")
 	viper.SetDefault("salts_file", "salts.json")
+	viper.SetDefault("db_path", "")
 	c := &Config{}
 	viper.ReadInConfig()
 	if err := viper.Unmarshal(c); err != nil {
@@ -38,9 +40,10 @@ func NewConfig() *Config {
 
 // UpdateTokens updates the tokens in the config.
 // It takes the new auth and refresh tokens as parameters and updates the configuration accordingly.
-func (c *Config) UpdateTokens(auth, refresh string) {
+func (c *Config) UpdateTokens(auth, refresh string) error {
 	c.JWTAuthToken = auth
 	c.JWTRefreshToken = refresh
+	return nil
 }
 
 // UpdateKey updates the encryption key in the config.
