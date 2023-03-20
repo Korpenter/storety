@@ -60,6 +60,7 @@ func (r *RetryClientInterceptor) UnaryInterceptor(ctx context.Context, method st
 			r.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
 			continue
 		}
+		break
 	}
 	return lastErr
 }
