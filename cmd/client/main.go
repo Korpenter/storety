@@ -28,6 +28,7 @@ var (
 // NA is the string output if build info is not set
 const NA string = "N/A"
 
+// Use ./client shell to access prompt
 func main() {
 	if len(buildVersion) == 0 {
 		buildVersion = NA
