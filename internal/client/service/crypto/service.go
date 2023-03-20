@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"github.com/Mldlr/storety/internal/client/config"
+	"github.com/samber/do"
 	"io"
 )
 
@@ -16,7 +17,8 @@ type Crypto struct {
 
 // NewCrypto creates a new Crypto instance and returns a pointer to it.
 // It takes a configuration object as a parameter.
-func NewCrypto(cfg *config.Config) *Crypto {
+func NewCrypto(i *do.Injector) *Crypto {
+	cfg := do.MustInvoke[*config.Config](i)
 	return &Crypto{
 		cfg: cfg,
 	}

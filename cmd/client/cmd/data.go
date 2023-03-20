@@ -6,8 +6,8 @@ import (
 	"github.com/Mldlr/storety/internal/client/config"
 	"github.com/Mldlr/storety/internal/client/models"
 	"github.com/Mldlr/storety/internal/client/pkg/helpers"
-	"github.com/Mldlr/storety/internal/client/service"
 	"github.com/Mldlr/storety/internal/client/service/crypto"
+	"github.com/Mldlr/storety/internal/client/service/data"
 	"github.com/samber/do"
 	cobra "github.com/spf13/cobra"
 	"io"
@@ -85,7 +85,7 @@ func createBinary(i *do.Injector) *cobra.Command {
 // listData creates a cobra command for listing all data items.
 func listData(i *do.Injector) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list_data",
+		Use:   "list",
 		Short: "List data",
 		Long:  "",
 		Args:  cobra.ExactArgs(0),
@@ -97,7 +97,7 @@ func listData(i *do.Injector) *cobra.Command {
 // getData creates a cobra command for getting a data item.
 func getData(i *do.Injector) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get_data [data_name]",
+		Use:   "get [data_name]",
 		Short: "Get data item",
 		Long:  "",
 		Args:  cobra.ExactArgs(1),
@@ -109,7 +109,7 @@ func getData(i *do.Injector) *cobra.Command {
 // deleteData creates a cobra command for deleting a data item.
 func deleteData(i *do.Injector) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete_data [data_name]",
+		Use:   "delete [data_name]",
 		Short: "Get data item",
 		Long:  "",
 		Args:  cobra.ExactArgs(1),
@@ -121,7 +121,7 @@ func deleteData(i *do.Injector) *cobra.Command {
 // syncData creates a cobra command for deleting a data item.
 func syncData(i *do.Injector) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "sync_data",
+		Use:   "sync",
 		Short: "Manual Sync with remote",
 		Long:  "",
 		Args:  cobra.ExactArgs(0),
@@ -133,7 +133,7 @@ func syncData(i *do.Injector) *cobra.Command {
 // runCreateCredentials is a wrapper creating a new Credentials data item.
 func runCreateCredentials(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		cryptoService := do.MustInvoke[crypto.Crypto](i)
 		dataName := args[0]
 		cred := &models.Credentials{
@@ -158,7 +158,7 @@ func runCreateCredentials(i *do.Injector) RunEFunc {
 // runCreateCard is a wrapper creating a new Card data item.
 func runCreateCard(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		cryptoService := do.MustInvoke[crypto.Crypto](i)
 		dataName := args[0]
 		cred := &models.Card{
@@ -186,7 +186,7 @@ func runCreateCard(i *do.Injector) RunEFunc {
 // runCreateText is a wrapper creating a new text data item.
 func runCreateText(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		cryptoService := do.MustInvoke[crypto.Crypto](i)
 		dataName := args[0]
 		cred := &models.Text{
@@ -210,7 +210,7 @@ func runCreateText(i *do.Injector) RunEFunc {
 // runCreateBinary is a wrapper creating a new binary data item.
 func runCreateBinary(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		cryptoService := do.MustInvoke[crypto.Crypto](i)
 		dataName := args[0]
 		file, err := os.Open(args[1])
@@ -244,7 +244,7 @@ func runCreateBinary(i *do.Injector) RunEFunc {
 // runListData is a wrapper for getting data info from the server
 func runListData(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		data, err := dataService.ListData()
 		if err != nil {
 			return helpers.LogError(err)
@@ -259,7 +259,7 @@ func runListData(i *do.Injector) RunEFunc {
 // runGetData is a wrapper for getting data from the server and formatting it.
 func runGetData(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		cryptoService := do.MustInvoke[crypto.Crypto](i)
 		content, typ, err := dataService.GetData(args[0])
 		if err != nil {
@@ -306,17 +306,7 @@ func runGetData(i *do.Injector) RunEFunc {
 				return helpers.LogError(err)
 			}
 			log.Printf("Blob: %s\n", binary.Blob)
-			log.Printf("Blob written to file: %s\n", args[0])
 			log.Printf("Meta: %s\n", binary.Meta)
-			file, err := os.OpenFile(args[0], os.O_WRONLY|os.O_CREATE, 0755)
-			if err != nil {
-				return helpers.LogError(err)
-			}
-			defer file.Close()
-			_, err = file.Write(binary.Blob)
-			if err != nil {
-				return helpers.LogError(err)
-			}
 		}
 		return nil
 	}
@@ -325,7 +315,7 @@ func runGetData(i *do.Injector) RunEFunc {
 // runDeleteData is a wrapper for deleting data.
 func runDeleteData(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		err := dataService.DeleteData(args[0])
 		if err != nil {
 			return helpers.LogError(err)
@@ -338,7 +328,7 @@ func runDeleteData(i *do.Injector) RunEFunc {
 // runSync is a wrapper for syncing data.
 func runSync(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		dataService := do.MustInvoke[service.DataService](i)
+		dataService := do.MustInvoke[data.Service](i)
 		err := dataService.SyncData()
 		if err != nil {
 			log.Println("Error syncing data: ", err)

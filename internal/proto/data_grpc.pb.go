@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 // DataClient is the client API for Data service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+//go:generate mockery --name=DataClient -r --case underscore --with-expecter --structname DataClient --filename data_client.go
 type DataClient interface {
 	CreateData(ctx context.Context, in *CreateDataRequest, opts ...grpc.CallOption) (*CreateDataResponse, error)
 	GetContent(ctx context.Context, in *GetContentRequest, opts ...grpc.CallOption) (*GetContentResponse, error)

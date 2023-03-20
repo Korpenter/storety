@@ -13,7 +13,7 @@ type Config struct {
 	PostgresURI             string `envconfig:"DATABASE_URI" default:""`
 	JWTAuthKey              string `envconfig:"JWT_AUTH_KEY" default:"defaultAuthKey"`
 	JWTAuthLifeTimeHours    int    `envconfig:"JWT_LIFETIME_HOURS" default:"24"`
-	JWTRefreshLifeTimeHours int    `envconfig:"JWT_LIFETIME_HOURS" default:"48"`
+	JWTRefreshLifeTimeHours int    `envconfig:"JWT_REFRESH_LIFETIME_HOURS" default:"48"`
 	CertFile                string `envconfig:"TLS_CERT_FILE" default:"cert.pem" json:"cert_file"`
 	KeyFile                 string `envconfig:"TLS_KEY_FILE" default:"key.pem" json:"key_file"`
 }

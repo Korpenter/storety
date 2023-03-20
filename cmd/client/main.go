@@ -1,14 +1,14 @@
 package main
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"github.com/Mldlr/storety/cmd/client/cmd"
 	"github.com/Mldlr/storety/internal/client/config"
 	interceptors "github.com/Mldlr/storety/internal/client/interceptor"
-	"github.com/Mldlr/storety/internal/client/service"
 	"github.com/Mldlr/storety/internal/client/service/crypto"
+	"github.com/Mldlr/storety/internal/client/service/data"
+	"github.com/Mldlr/storety/internal/client/service/user"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/samber/do"
 	"google.golang.org/grpc"
@@ -44,15 +44,12 @@ func main() {
 
 	injector := do.New()
 	cfg := config.NewConfig()
-
 	do.Provide(
 		injector,
 		func(i *do.Injector) (*config.Config, error) {
 			return cfg, nil
 		},
 	)
-
-	ctx := context.Background()
 	cert, err := tls.LoadX509KeyPair(cfg.CertFile, cfg.KeyFile)
 	if err != nil {
 		log.Fatal("Failed to load certificate:", err)
@@ -66,10 +63,10 @@ func main() {
 		Timeout:             2 * time.Second,
 		PermitWithoutStream: true,
 	}
+	var conn *grpc.ClientConn
 	authInterceptor := interceptors.NewAuthClientInterceptor(cfg)
-	retryInterceptor := interceptors.NewRetryClientInterceptor(cfg, 10, 5*time.Second)
+	retryInterceptor := interceptors.NewRetryClientInterceptor(cfg, 10, 5*time.Second, conn)
 	opts := []grpc.DialOption{
-		grpc.WithBlock(),
 		grpc.WithTransportCredentials(cred),
 		grpc.WithKeepaliveParams(keepaliveParams),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
@@ -77,10 +74,9 @@ func main() {
 			retryInterceptor.UnaryInterceptor,
 		)),
 	}
-	var conn *grpc.ClientConn
-	conn, err = grpc.DialContext(ctx, cfg.ServiceAddress, opts...)
+	conn, err = grpc.Dial(cfg.ServiceAddress, opts...)
 	if err != nil {
-		log.Println("Failed to connect to server:", err)
+		log.Println("Failed to connect to server, running in local:", err)
 	}
 	do.Provide(
 		injector,
@@ -88,9 +84,10 @@ func main() {
 			return conn, nil
 		},
 	)
-	cryptoSvc := crypto.NewCrypto(cfg)
-	userService := service.NewUserService(ctx, conn, cfg)
-	dataService := service.NewDataService(ctx, conn, cfg)
+
+	cryptoSvc := crypto.NewCrypto(injector)
+	userService := user.NewServiceImpl(injector)
+	dataService := data.NewServiceImpl(injector)
 	dataService.StartSyncData()
 	do.Provide(
 		injector,
@@ -100,17 +97,15 @@ func main() {
 	)
 	do.Provide(
 		injector,
-		func(i *do.Injector) (service.UserService, error) {
+		func(i *do.Injector) (user.Service, error) {
 			return userService, nil
 		},
 	)
 	do.Provide(
 		injector,
-		func(i *do.Injector) (service.DataService, error) {
+		func(i *do.Injector) (data.Service, error) {
 			return dataService, nil
 		},
 	)
-
-	defer conn.Close()
 	cmd.Execute(injector)
 }

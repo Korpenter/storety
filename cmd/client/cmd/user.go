@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/Mldlr/storety/internal/client/config"
 	"github.com/Mldlr/storety/internal/client/pkg/helpers"
-	"github.com/Mldlr/storety/internal/client/service"
+	"github.com/Mldlr/storety/internal/client/service/data"
+	"github.com/Mldlr/storety/internal/client/service/user"
 	"github.com/Mldlr/storety/internal/client/storage/sqlite"
 	"github.com/samber/do"
 	cobra "github.com/spf13/cobra"
@@ -58,8 +59,8 @@ func logInCmd(i *do.Injector) *cobra.Command {
 func runCreateUserCmd(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
 		cfg := do.MustInvoke[*config.Config](i)
-		userService := do.MustInvoke[service.UserService](i)
-		dataService := do.MustInvoke[service.DataService](i)
+		userService := do.MustInvoke[user.Service](i)
+		dataService := do.MustInvoke[data.Service](i)
 		username, password := args[0], args[1]
 		err := userService.CreateUser(username, password)
 		if err != nil {
@@ -79,8 +80,8 @@ func runCreateUserCmd(i *do.Injector) RunEFunc {
 // runLogInCmd returns a RunEFunc that serves as a CLI wrapper for client.LogInUser.
 func runLogInCmd(i *do.Injector) RunEFunc {
 	return func(cmd *cobra.Command, args []string) error {
-		userService := do.MustInvoke[service.UserService](i)
-		dataService := do.MustInvoke[service.DataService](i)
+		userService := do.MustInvoke[user.Service](i)
+		dataService := do.MustInvoke[data.Service](i)
 		cfg := do.MustInvoke[*config.Config](i)
 		username, password := args[0], args[1]
 		err := userService.LogInUser(username, password)

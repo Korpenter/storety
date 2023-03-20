@@ -24,13 +24,57 @@ func (_m *Storage) EXPECT() *Storage_Expecter {
 	return &Storage_Expecter{mock: &_m.Mock}
 }
 
-// CreateData provides a mock function with given fields: ctx, data
-func (_m *Storage) CreateData(ctx context.Context, data *models.Data) error {
-	ret := _m.Called(ctx, data)
+// CreateBatch provides a mock function with given fields: ctx, userID, dataBatch
+func (_m *Storage) CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
+	ret := _m.Called(ctx, userID, dataBatch)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Data) error); ok {
-		r0 = rf(ctx, data)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.Data) error); ok {
+		r0 = rf(ctx, userID, dataBatch)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Storage_CreateBatch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateBatch'
+type Storage_CreateBatch_Call struct {
+	*mock.Call
+}
+
+// CreateBatch is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+//   - dataBatch []models.Data
+func (_e *Storage_Expecter) CreateBatch(ctx interface{}, userID interface{}, dataBatch interface{}) *Storage_CreateBatch_Call {
+	return &Storage_CreateBatch_Call{Call: _e.mock.On("CreateBatch", ctx, userID, dataBatch)}
+}
+
+func (_c *Storage_CreateBatch_Call) Run(run func(ctx context.Context, userID uuid.UUID, dataBatch []models.Data)) *Storage_CreateBatch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]models.Data))
+	})
+	return _c
+}
+
+func (_c *Storage_CreateBatch_Call) Return(_a0 error) *Storage_CreateBatch_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Storage_CreateBatch_Call) RunAndReturn(run func(context.Context, uuid.UUID, []models.Data) error) *Storage_CreateBatch_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateData provides a mock function with given fields: ctx, userID, data
+func (_m *Storage) CreateData(ctx context.Context, userID uuid.UUID, data *models.Data) error {
+	ret := _m.Called(ctx, userID, data)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.Data) error); ok {
+		r0 = rf(ctx, userID, data)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -45,14 +89,15 @@ type Storage_CreateData_Call struct {
 
 // CreateData is a helper method to define mock.On call
 //   - ctx context.Context
+//   - userID uuid.UUID
 //   - data *models.Data
-func (_e *Storage_Expecter) CreateData(ctx interface{}, data interface{}) *Storage_CreateData_Call {
-	return &Storage_CreateData_Call{Call: _e.mock.On("CreateData", ctx, data)}
+func (_e *Storage_Expecter) CreateData(ctx interface{}, userID interface{}, data interface{}) *Storage_CreateData_Call {
+	return &Storage_CreateData_Call{Call: _e.mock.On("CreateData", ctx, userID, data)}
 }
 
-func (_c *Storage_CreateData_Call) Run(run func(ctx context.Context, data *models.Data)) *Storage_CreateData_Call {
+func (_c *Storage_CreateData_Call) Run(run func(ctx context.Context, userID uuid.UUID, data *models.Data)) *Storage_CreateData_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*models.Data))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*models.Data))
 	})
 	return _c
 }
@@ -62,7 +107,7 @@ func (_c *Storage_CreateData_Call) Return(_a0 error) *Storage_CreateData_Call {
 	return _c
 }
 
-func (_c *Storage_CreateData_Call) RunAndReturn(run func(context.Context, *models.Data) error) *Storage_CreateData_Call {
+func (_c *Storage_CreateData_Call) RunAndReturn(run func(context.Context, uuid.UUID, *models.Data) error) *Storage_CreateData_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -253,6 +298,71 @@ func (_c *Storage_GetAllDataInfo_Call) RunAndReturn(run func(context.Context, uu
 	return _c
 }
 
+// GetDataByUpdateAndHash provides a mock function with given fields: ctx, userID, syncData
+func (_m *Storage) GetDataByUpdateAndHash(ctx context.Context, userID uuid.UUID, syncData []models.SyncData) ([]models.Data, []string, error) {
+	ret := _m.Called(ctx, userID, syncData)
+
+	var r0 []models.Data
+	var r1 []string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.SyncData) ([]models.Data, []string, error)); ok {
+		return rf(ctx, userID, syncData)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.SyncData) []models.Data); ok {
+		r0 = rf(ctx, userID, syncData)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Data)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, []models.SyncData) []string); ok {
+		r1 = rf(ctx, userID, syncData)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, []models.SyncData) error); ok {
+		r2 = rf(ctx, userID, syncData)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// Storage_GetDataByUpdateAndHash_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDataByUpdateAndHash'
+type Storage_GetDataByUpdateAndHash_Call struct {
+	*mock.Call
+}
+
+// GetDataByUpdateAndHash is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+//   - syncData []models.SyncData
+func (_e *Storage_Expecter) GetDataByUpdateAndHash(ctx interface{}, userID interface{}, syncData interface{}) *Storage_GetDataByUpdateAndHash_Call {
+	return &Storage_GetDataByUpdateAndHash_Call{Call: _e.mock.On("GetDataByUpdateAndHash", ctx, userID, syncData)}
+}
+
+func (_c *Storage_GetDataByUpdateAndHash_Call) Run(run func(ctx context.Context, userID uuid.UUID, syncData []models.SyncData)) *Storage_GetDataByUpdateAndHash_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]models.SyncData))
+	})
+	return _c
+}
+
+func (_c *Storage_GetDataByUpdateAndHash_Call) Return(_a0 []models.Data, _a1 []string, _a2 error) *Storage_GetDataByUpdateAndHash_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *Storage_GetDataByUpdateAndHash_Call) RunAndReturn(run func(context.Context, uuid.UUID, []models.SyncData) ([]models.Data, []string, error)) *Storage_GetDataByUpdateAndHash_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetDataContentByName provides a mock function with given fields: ctx, userID, name
 func (_m *Storage) GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	ret := _m.Called(ctx, userID, name)
@@ -312,6 +422,62 @@ func (_c *Storage_GetDataContentByName_Call) Return(_a0 []byte, _a1 string, _a2 
 }
 
 func (_c *Storage_GetDataContentByName_Call) RunAndReturn(run func(context.Context, uuid.UUID, string) ([]byte, string, error)) *Storage_GetDataContentByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetNewData provides a mock function with given fields: ctx, userID, ids
+func (_m *Storage) GetNewData(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]models.Data, error) {
+	ret := _m.Called(ctx, userID, ids)
+
+	var r0 []models.Data
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID) ([]models.Data, error)); ok {
+		return rf(ctx, userID, ids)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []uuid.UUID) []models.Data); ok {
+		r0 = rf(ctx, userID, ids)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Data)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, []uuid.UUID) error); ok {
+		r1 = rf(ctx, userID, ids)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Storage_GetNewData_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNewData'
+type Storage_GetNewData_Call struct {
+	*mock.Call
+}
+
+// GetNewData is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+//   - ids []uuid.UUID
+func (_e *Storage_Expecter) GetNewData(ctx interface{}, userID interface{}, ids interface{}) *Storage_GetNewData_Call {
+	return &Storage_GetNewData_Call{Call: _e.mock.On("GetNewData", ctx, userID, ids)}
+}
+
+func (_c *Storage_GetNewData_Call) Run(run func(ctx context.Context, userID uuid.UUID, ids []uuid.UUID)) *Storage_GetNewData_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *Storage_GetNewData_Call) Return(_a0 []models.Data, _a1 error) *Storage_GetNewData_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Storage_GetNewData_Call) RunAndReturn(run func(context.Context, uuid.UUID, []uuid.UUID) ([]models.Data, error)) *Storage_GetNewData_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -437,6 +603,50 @@ func (_c *Storage_GetUserDataByName_Call) Return(_a0 uuid.UUID, _a1 string, _a2 
 }
 
 func (_c *Storage_GetUserDataByName_Call) RunAndReturn(run func(context.Context, string) (uuid.UUID, string, string, error)) *Storage_GetUserDataByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateBatch provides a mock function with given fields: ctx, userID, dataBatch
+func (_m *Storage) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
+	ret := _m.Called(ctx, userID, dataBatch)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.Data) error); ok {
+		r0 = rf(ctx, userID, dataBatch)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Storage_UpdateBatch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateBatch'
+type Storage_UpdateBatch_Call struct {
+	*mock.Call
+}
+
+// UpdateBatch is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+//   - dataBatch []models.Data
+func (_e *Storage_Expecter) UpdateBatch(ctx interface{}, userID interface{}, dataBatch interface{}) *Storage_UpdateBatch_Call {
+	return &Storage_UpdateBatch_Call{Call: _e.mock.On("UpdateBatch", ctx, userID, dataBatch)}
+}
+
+func (_c *Storage_UpdateBatch_Call) Run(run func(ctx context.Context, userID uuid.UUID, dataBatch []models.Data)) *Storage_UpdateBatch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]models.Data))
+	})
+	return _c
+}
+
+func (_c *Storage_UpdateBatch_Call) Return(_a0 error) *Storage_UpdateBatch_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Storage_UpdateBatch_Call) RunAndReturn(run func(context.Context, uuid.UUID, []models.Data) error) *Storage_UpdateBatch_Call {
 	_c.Call.Return(run)
 	return _c
 }

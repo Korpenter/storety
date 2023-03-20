@@ -75,6 +75,7 @@ func (s *StoretyHandler) ListData(ctx context.Context, request *pb.ListDataReque
 	return &pb.ListDataResponse{Data: response}, nil
 }
 
+// CreateBatchData creates a batch of data items.
 func (s *StoretyHandler) CreateBatchData(ctx context.Context, request *pb.CreateBatchDataRequest) (*pb.CreateBatchResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	createItems := make([]models.Data, len(request.Data))
@@ -102,6 +103,7 @@ func (s *StoretyHandler) CreateBatchData(ctx context.Context, request *pb.Create
 	return &pb.CreateBatchResponse{}, nil
 }
 
+// UpdateBatchData updates a batch of data items.
 func (s *StoretyHandler) UpdateBatchData(ctx context.Context, request *pb.UpdateBatchDataRequest) (*pb.UpdateBatchResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
 	updateItems := make([]models.Data, len(request.Data))

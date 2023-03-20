@@ -21,7 +21,7 @@ func NewService(i *do.Injector) *ServiceImpl {
 	}
 }
 
-// CreateData creates a new data entry for the specified user.
+// CreateData implements the data service interface CreateData method.
 func (s *ServiceImpl) CreateData(ctx context.Context, userID uuid.UUID, data *models.Data) error {
 	var err error
 	data.ID, err = uuid.NewRandom()
@@ -31,12 +31,12 @@ func (s *ServiceImpl) CreateData(ctx context.Context, userID uuid.UUID, data *mo
 	return s.storage.CreateData(ctx, userID, data)
 }
 
-// GetDataContent retrieves the content and content type of specified data entry for a user.
+// GetDataContent implements the data service interface GetDataContent method.
 func (s *ServiceImpl) GetDataContent(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	return s.storage.GetDataContentByName(ctx, userID, name)
 }
 
-// CreateBatch adds a new data batch in the database for the specified user.
+// CreateBatch implements the data service interface CreateBatch method.
 func (s *ServiceImpl) CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
 	if len(dataBatch) > 0 {
 		return s.storage.CreateBatch(ctx, userID, dataBatch)
@@ -44,7 +44,7 @@ func (s *ServiceImpl) CreateBatch(ctx context.Context, userID uuid.UUID, dataBat
 	return nil
 }
 
-// UpdateBatch updates a data batch in the database for the specified user.
+// UpdateBatch implements the data service interface UpdateBatch method.
 func (s *ServiceImpl) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
 	if len(dataBatch) > 0 {
 		return s.storage.UpdateBatch(ctx, userID, dataBatch)
@@ -52,17 +52,17 @@ func (s *ServiceImpl) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBat
 	return nil
 }
 
-// DeleteData removes a specified data entry for a user.
+// DeleteData implements the data service interface DeleteData method.
 func (s *ServiceImpl) DeleteData(ctx context.Context, userID uuid.UUID, name string) error {
 	return s.storage.DeleteDataByName(ctx, userID, name)
 }
 
-// ListData retrieves a list of all data entries associated with a user.
+// ListData implements the data service interface ListData method.
 func (s *ServiceImpl) ListData(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error) {
 	return s.storage.GetAllDataInfo(ctx, userID)
 }
 
-// GetSyncData gets new data and ids for client to send to server for update.
+// GetSyncData implements the data service interface GetSyncData method.
 func (s *ServiceImpl) GetSyncData(ctx context.Context, userID uuid.UUID, syncData []models.SyncData) ([]models.Data, []string, error) {
 	ids := make([]uuid.UUID, len(syncData))
 	for i := range syncData {

@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// CreateUser creates a new user entry in the database.
+// CreateUser implements the user service interface CreateUser method.
 func (d *DB) CreateUser(ctx context.Context, user *models.User) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -26,8 +26,7 @@ func (d *DB) CreateUser(ctx context.Context, user *models.User) error {
 	return nil
 }
 
-// GetUserDataByName retrieves the user id, password and salt for a specific user.
-// It returns the user's UUID, password, and any error that occurs.
+// GetUserDataByName implements the user service interface GetUserDataByName method.
 func (d *DB) GetUserDataByName(ctx context.Context, username string) (uuid.UUID, string, string, error) {
 	var password, salt string
 	var id uuid.UUID
@@ -38,5 +37,5 @@ func (d *DB) GetUserDataByName(ctx context.Context, username string) (uuid.UUID,
 		}
 		return uuid.Nil, "", "", err
 	}
-	return id, password, "", nil
+	return id, password, salt, nil
 }

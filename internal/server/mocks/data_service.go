@@ -25,13 +25,57 @@ func (_m *DataService) EXPECT() *DataService_Expecter {
 	return &DataService_Expecter{mock: &_m.Mock}
 }
 
-// CreateData provides a mock function with given fields: ctx, _a1
-func (_m *DataService) CreateData(ctx context.Context, _a1 *models.Data) error {
-	ret := _m.Called(ctx, _a1)
+// CreateBatch provides a mock function with given fields: ctx, userID, dataBatch
+func (_m *DataService) CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
+	ret := _m.Called(ctx, userID, dataBatch)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Data) error); ok {
-		r0 = rf(ctx, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.Data) error); ok {
+		r0 = rf(ctx, userID, dataBatch)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DataService_CreateBatch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateBatch'
+type DataService_CreateBatch_Call struct {
+	*mock.Call
+}
+
+// CreateBatch is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+//   - dataBatch []models.Data
+func (_e *DataService_Expecter) CreateBatch(ctx interface{}, userID interface{}, dataBatch interface{}) *DataService_CreateBatch_Call {
+	return &DataService_CreateBatch_Call{Call: _e.mock.On("CreateBatch", ctx, userID, dataBatch)}
+}
+
+func (_c *DataService_CreateBatch_Call) Run(run func(ctx context.Context, userID uuid.UUID, dataBatch []models.Data)) *DataService_CreateBatch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]models.Data))
+	})
+	return _c
+}
+
+func (_c *DataService_CreateBatch_Call) Return(_a0 error) *DataService_CreateBatch_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *DataService_CreateBatch_Call) RunAndReturn(run func(context.Context, uuid.UUID, []models.Data) error) *DataService_CreateBatch_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateData provides a mock function with given fields: ctx, userID, _a2
+func (_m *DataService) CreateData(ctx context.Context, userID uuid.UUID, _a2 *models.Data) error {
+	ret := _m.Called(ctx, userID, _a2)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.Data) error); ok {
+		r0 = rf(ctx, userID, _a2)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,14 +90,15 @@ type DataService_CreateData_Call struct {
 
 // CreateData is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 *models.Data
-func (_e *DataService_Expecter) CreateData(ctx interface{}, _a1 interface{}) *DataService_CreateData_Call {
-	return &DataService_CreateData_Call{Call: _e.mock.On("CreateData", ctx, _a1)}
+//   - userID uuid.UUID
+//   - _a2 *models.Data
+func (_e *DataService_Expecter) CreateData(ctx interface{}, userID interface{}, _a2 interface{}) *DataService_CreateData_Call {
+	return &DataService_CreateData_Call{Call: _e.mock.On("CreateData", ctx, userID, _a2)}
 }
 
-func (_c *DataService_CreateData_Call) Run(run func(ctx context.Context, _a1 *models.Data)) *DataService_CreateData_Call {
+func (_c *DataService_CreateData_Call) Run(run func(ctx context.Context, userID uuid.UUID, _a2 *models.Data)) *DataService_CreateData_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*models.Data))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*models.Data))
 	})
 	return _c
 }
@@ -63,7 +108,7 @@ func (_c *DataService_CreateData_Call) Return(_a0 error) *DataService_CreateData
 	return _c
 }
 
-func (_c *DataService_CreateData_Call) RunAndReturn(run func(context.Context, *models.Data) error) *DataService_CreateData_Call {
+func (_c *DataService_CreateData_Call) RunAndReturn(run func(context.Context, uuid.UUID, *models.Data) error) *DataService_CreateData_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -175,6 +220,71 @@ func (_c *DataService_GetDataContent_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
+// GetSyncData provides a mock function with given fields: ctx, userID, syncData
+func (_m *DataService) GetSyncData(ctx context.Context, userID uuid.UUID, syncData []models.SyncData) ([]models.Data, []string, error) {
+	ret := _m.Called(ctx, userID, syncData)
+
+	var r0 []models.Data
+	var r1 []string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.SyncData) ([]models.Data, []string, error)); ok {
+		return rf(ctx, userID, syncData)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.SyncData) []models.Data); ok {
+		r0 = rf(ctx, userID, syncData)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Data)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, []models.SyncData) []string); ok {
+		r1 = rf(ctx, userID, syncData)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, []models.SyncData) error); ok {
+		r2 = rf(ctx, userID, syncData)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// DataService_GetSyncData_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSyncData'
+type DataService_GetSyncData_Call struct {
+	*mock.Call
+}
+
+// GetSyncData is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+//   - syncData []models.SyncData
+func (_e *DataService_Expecter) GetSyncData(ctx interface{}, userID interface{}, syncData interface{}) *DataService_GetSyncData_Call {
+	return &DataService_GetSyncData_Call{Call: _e.mock.On("GetSyncData", ctx, userID, syncData)}
+}
+
+func (_c *DataService_GetSyncData_Call) Run(run func(ctx context.Context, userID uuid.UUID, syncData []models.SyncData)) *DataService_GetSyncData_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]models.SyncData))
+	})
+	return _c
+}
+
+func (_c *DataService_GetSyncData_Call) Return(_a0 []models.Data, _a1 []string, _a2 error) *DataService_GetSyncData_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *DataService_GetSyncData_Call) RunAndReturn(run func(context.Context, uuid.UUID, []models.SyncData) ([]models.Data, []string, error)) *DataService_GetSyncData_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListData provides a mock function with given fields: ctx, userID
 func (_m *DataService) ListData(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error) {
 	ret := _m.Called(ctx, userID)
@@ -226,6 +336,50 @@ func (_c *DataService_ListData_Call) Return(_a0 []models.DataInfo, _a1 error) *D
 }
 
 func (_c *DataService_ListData_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]models.DataInfo, error)) *DataService_ListData_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateBatch provides a mock function with given fields: ctx, userID, dataBatch
+func (_m *DataService) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
+	ret := _m.Called(ctx, userID, dataBatch)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, []models.Data) error); ok {
+		r0 = rf(ctx, userID, dataBatch)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DataService_UpdateBatch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateBatch'
+type DataService_UpdateBatch_Call struct {
+	*mock.Call
+}
+
+// UpdateBatch is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+//   - dataBatch []models.Data
+func (_e *DataService_Expecter) UpdateBatch(ctx interface{}, userID interface{}, dataBatch interface{}) *DataService_UpdateBatch_Call {
+	return &DataService_UpdateBatch_Call{Call: _e.mock.On("UpdateBatch", ctx, userID, dataBatch)}
+}
+
+func (_c *DataService_UpdateBatch_Call) Run(run func(ctx context.Context, userID uuid.UUID, dataBatch []models.Data)) *DataService_UpdateBatch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].([]models.Data))
+	})
+	return _c
+}
+
+func (_c *DataService_UpdateBatch_Call) Return(_a0 error) *DataService_UpdateBatch_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *DataService_UpdateBatch_Call) RunAndReturn(run func(context.Context, uuid.UUID, []models.Data) error) *DataService_UpdateBatch_Call {
 	_c.Call.Return(run)
 	return _c
 }

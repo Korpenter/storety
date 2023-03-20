@@ -28,7 +28,7 @@ func NewService(i *do.Injector) *ServiceImpl {
 	}
 }
 
-// CreateUser creates a new user and returns a new session for the created user, or an error if any occurs.
+// CreateUser implements the user service interface CreateUser method .
 func (s *ServiceImpl) CreateUser(ctx context.Context, user *models.User) (*models.Session, error) {
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *ServiceImpl) CreateUser(ctx context.Context, user *models.User) (*model
 	return session, nil
 }
 
-// LogInUser logs in a user and returns a new session and salt for the logged-in user, or an error if any occurs.
+// LogInUser implements the user service interface LogInUser method .
 func (s *ServiceImpl) LogInUser(ctx context.Context, user *models.User) (*models.Session, string, error) {
 	uid, hash, salt, err := s.storage.GetUserDataByName(ctx, user.Login)
 	if err != nil {
@@ -91,7 +91,7 @@ func (s *ServiceImpl) LogInUser(ctx context.Context, user *models.User) (*models
 	return session, salt, nil
 }
 
-// RefreshUserSession refreshes a user session and returns a new session for the user, or an error if any occurs.
+// RefreshUserSession implements the user service interface RefreshUserSession method.
 func (s *ServiceImpl) RefreshUserSession(ctx context.Context, oldSession *models.Session) (*models.Session, error) {
 	var err error
 	session := &models.Session{}

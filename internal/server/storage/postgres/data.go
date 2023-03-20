@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// CreateData creates a new data entry in the database.
+// CreateData implements the data service interface CreateData method.
 func (d *DB) CreateData(ctx context.Context, userID uuid.UUID, data *models.Data) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -24,7 +24,7 @@ func (d *DB) CreateData(ctx context.Context, userID uuid.UUID, data *models.Data
 	return nil
 }
 
-// GetDataContentByName retrieves the content and content type of data by name for a specific user.
+// GetDataContentByName implements the data service interface GetDataContentByName method.
 func (d *DB) GetDataContentByName(ctx context.Context, userID uuid.UUID, name string) ([]byte, string, error) {
 	var content []byte
 	var contentType string
@@ -38,7 +38,7 @@ func (d *DB) GetDataContentByName(ctx context.Context, userID uuid.UUID, name st
 	return content, contentType, nil
 }
 
-// DeleteDataByName deletes a data entry by name for a specific user.
+// DeleteDataByName implements the data service interface DeleteDataByName method.
 func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -52,7 +52,7 @@ func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string
 	return nil
 }
 
-// GetAllDataInfo retrieves all data info (name, type) for a specific user.
+// GetAllDataInfo implements the data service interface GetAllDataInfo method.
 func (d *DB) GetAllDataInfo(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error) {
 	var list []models.DataInfo
 	rows, err := d.conn.Query(ctx, getAllDataInfo, userID)
@@ -74,6 +74,7 @@ func (d *DB) GetAllDataInfo(ctx context.Context, userID uuid.UUID) ([]models.Dat
 	return list, nil
 }
 
+// CreateBatch implements the DataRepository interface CreateBatch method.
 func (d *DB) CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -96,6 +97,7 @@ func (d *DB) CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []mode
 	return nil
 }
 
+// UpdateBatch implements the DataRepository interface UpdateBatch method.
 func (d *DB) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
@@ -112,7 +114,7 @@ func (d *DB) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []mode
 
 		if res, err := br.Exec(); res.RowsAffected() == 0 || err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return errors.Join(constants.ErrCreateData, err)
+				return errors.Join(constants.ErrUpdateData, err)
 			}
 			return err
 		}
@@ -120,6 +122,7 @@ func (d *DB) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []mode
 	return nil
 }
 
+// GetNewData implements the DataRepository interface GetNewData method.
 func (d *DB) GetNewData(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]models.Data, error) {
 	rows, err := d.conn.Query(ctx, getNewData, userID, ids)
 	if err != nil {

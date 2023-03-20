@@ -16,6 +16,7 @@ import (
 
 // RetryClientInterceptor is a client interceptor that retries RPCs.
 type RetryClientInterceptor struct {
+	client        pb.UserClient
 	cfg           *config.Config
 	retryTimes    uint
 	retryDuration time.Duration
@@ -23,15 +24,16 @@ type RetryClientInterceptor struct {
 
 // NewRetryClientInterceptor creates a new RetryClientInterceptor and returns a pointer to it.
 // It takes a configuration object, retryTimes, and retryDuration as parameters.
-func NewRetryClientInterceptor(cfg *config.Config, retryTimes uint, retryDuration time.Duration) *RetryClientInterceptor {
+func NewRetryClientInterceptor(cfg *config.Config, retryTimes uint, retryDuration time.Duration, conn *grpc.ClientConn) *RetryClientInterceptor {
 	return &RetryClientInterceptor{
+		client:        pb.NewUserClient(conn),
 		cfg:           cfg,
 		retryTimes:    retryTimes,
 		retryDuration: retryDuration,
 	}
 }
 
-// UnaryInterceptor is a unary interceptor that retries RPCs and refreshes the token if needed.
+// UnaryInterceptor is a modified grpc-middleware unary interceptor that retries RPCs and refreshes the token if needed.
 func (r *RetryClientInterceptor) UnaryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, callOpts ...grpc.CallOption) error {
 	var lastErr error
 	for attempt := uint(0); attempt < r.retryTimes; attempt++ {
@@ -51,16 +53,11 @@ func (r *RetryClientInterceptor) UnaryInterceptor(ctx context.Context, method st
 		if rpctypes.ErrorDesc(lastErr) == constants.ErrExpiredToken.Error() {
 			log.Println("Token expired, trying to refresh token")
 			request := &pb.RefreshUserSessionRequest{}
-			client := pb.NewUserClient(cc)
-			result, err := client.RefreshUserSession(ctx, request)
+			result, err := r.client.RefreshUserSession(ctx, request)
 			if err != nil {
 				return err
 			}
-			err = r.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
-			if err == nil {
-				log.Println("token refreshed")
-				return nil
-			}
+			r.cfg.UpdateTokens(result.AuthToken, result.RefreshToken)
 			continue
 		}
 	}

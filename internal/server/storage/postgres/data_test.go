@@ -10,21 +10,30 @@ import (
 	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+	"time"
 )
 
 func TestDB_CreateData(t *testing.T) {
-	id := uuid.New()
-	userID := uuid.New()
 	tests := []struct {
 		name    string
+		data    *models.Data
+		userID  uuid.UUID
 		resIns  pgconn.CommandTag
 		resUpd  pgconn.CommandTag
 		wantErr error
 	}{
 		{
-			name:    "Create data successfully",
-			resIns:  pgxmock.NewResult("INSERT", 1),
-			resUpd:  pgxmock.NewResult("UPDATE", 1),
+			name:   "Create data successfully",
+			resIns: pgxmock.NewResult("INSERT", 1),
+			data: &models.Data{
+				ID:        uuid.New(),
+				Name:      "data",
+				Type:      "binary",
+				Content:   []byte{123},
+				UpdatedAt: time.Now().UTC(),
+				Deleted:   false,
+			},
+			userID:  uuid.New(),
 			wantErr: nil,
 		},
 	}
@@ -37,18 +46,13 @@ func TestDB_CreateData(t *testing.T) {
 			defer mock.Close()
 			mock.ExpectBegin()
 			mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO data`)).
-				WithArgs(id, userID, "data", "binary", []byte{123}).WillReturnResult(tt.resIns)
+				WithArgs(tt.data.ID, tt.userID, tt.data.Name, tt.data.Type, tt.data.Content, tt.data.UpdatedAt, tt.data.Deleted).
+				WillReturnResult(tt.resIns)
 			mock.ExpectCommit()
 
 			db := &DB{conn: mock}
-			data := &models.Data{
-				ID:      id,
-				UserID:  userID,
-				Name:    "data",
-				Type:    "binary",
-				Content: []byte{123},
-			}
-			err = db.CreateData(context.Background(), data)
+
+			err = db.CreateData(context.Background(), tt.userID, tt.data)
 			assert.ErrorIs(t, err, tt.wantErr)
 
 			if err := mock.ExpectationsWereMet(); err != nil {

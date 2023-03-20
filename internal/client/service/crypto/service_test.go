@@ -15,7 +15,7 @@ func TestEncryptDecryptWithAES256(t *testing.T) {
 	}
 	_, err = rand.Read(cfg.EncryptionKey)
 	assert.NoError(t, err, "Error generating encryption key")
-	cryptoSvc := NewCrypto(cfg)
+	cryptoSvc := Crypto{cfg: cfg}
 
 	tests := []struct {
 		name string

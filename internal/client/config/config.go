@@ -40,10 +40,9 @@ func NewConfig() *Config {
 
 // UpdateTokens updates the tokens in the config.
 // It takes the new auth and refresh tokens as parameters and updates the configuration accordingly.
-func (c *Config) UpdateTokens(auth, refresh string) error {
+func (c *Config) UpdateTokens(auth, refresh string) {
 	c.JWTAuthToken = auth
 	c.JWTRefreshToken = refresh
-	return nil
 }
 
 // UpdateKey updates the encryption key in the config.

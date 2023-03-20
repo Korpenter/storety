@@ -28,8 +28,8 @@ var (
 	// ErrDeleteData is returned when data could not be deleted.
 	ErrDeleteData = errors.New("unable to delete data")
 
-	// ErrUpdateVersion is returned when the version could not be updated.
-	ErrUpdateVersion = errors.New("unable to update version")
+	// ErrUpdateData is returned when data could not be updated.
+	ErrUpdateData = errors.New("unable to update data")
 
 	// ErrNoData is returned when no data is found.
 	ErrNoData = errors.New("no data found")

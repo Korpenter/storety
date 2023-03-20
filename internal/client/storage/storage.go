@@ -9,6 +9,8 @@ import (
 )
 
 // Storage is the interface for the storage layer, which defines the methods for handling user sessions and data storage.
+//
+//go:generate mockery --name=Storage -r --case underscore --with-expecter --structname Storage --filename storage.go
 type Storage interface {
 	// CreateData creates a new data entry in the storage for a user.
 	CreateData(ctx context.Context, data *models.Data) error
