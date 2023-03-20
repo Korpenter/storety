@@ -12,11 +12,6 @@ const (
 	deleted BOOLEAN NOT NULL DEFAULT 0
 	);`
 
-	createTableMeta = `CREATE TABLE IF NOT EXISTS meta (
-    id INTEGER NOT NULL PRIMARY KEY,
-    last_synced_at DATETIME
-    );`
-
 	// createData is a query to insert a new data record.
 	createData = `INSERT OR IGNORE INTO data 
 	(
@@ -51,18 +46,16 @@ const (
 	SET name = NULL, deleted = 1, content = NULL, updated_at = ?
 	WHERE name = ?`
 
-	// getSyncTimestamp is a query to get last sync timestamp.
-	getSyncTimstamp = `
-	SELECT last_synced_at
-	FROM meta
-	WHERE id = 1;
-	`
-
-	// syncData is a query to get all data records that were never synced or got updated since last sync.
-	getSyncData = `
+	// getNewData is a query to get all data records for user that were created after last client sync.
+	getNewData = `
 	SELECT id, name, type, content, updated_at, deleted
 	FROM data
-	WHERE first_synced = 0 OR updated_at > ?;`
+	WHERE first_synced = 0`
+
+	// getUpdatedData is a query to get all data id, hash and update time for records.
+	getSyncData = `
+	SELECT id, content, updated_at
+	FROM data`
 
 	// setSyncedStatus is a query to set synced_at timestamp for a data record.
 	setSyncedStatus = `
@@ -70,15 +63,13 @@ const (
 	SET first_synced = 1
 	WHERE id = ?;`
 
-	// updateData is a query to update a data record.
-	updateData = `
+	// insertOrReplaceData is a query to upsert a data record.
+	insertOrReplaceData = `
 	INSERT OR REPLACE INTO data (id, name, type, content, updated_at, deleted, first_synced)
 	VALUES (?, ?, ?, ?, ?, ?, 1);
 `
-	// setLastSyncedTime is a query to set last sync timestamp.
-	setLastSyncedTime = `
-	INSERT OR REPLACE
-	INTO meta(id, last_synced_at)
-	VALUES(1,?);
-`
+	getBatch = `
+	SELECT id, name, type, content, updated_at, deleted
+	FROM data
+	WHERE id IN (?`
 )

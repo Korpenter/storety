@@ -17,6 +17,13 @@ message DataItem {
   bool deleted = 6;
 }
 
+//  SyncDataItem is a message representing a data entry to be synced.
+message SyncDataItem {
+  string id = 1;
+  string hash = 2;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
 // CreateDataRequest is a message representing the request to create a new data entry.
 message CreateDataRequest {
   DataItem data = 1;
@@ -63,16 +70,32 @@ message DeleteDataResponse {
 
 // SyncRequest is a message representing the request to sync the data entries with the server.
 message SyncRequest {
-  repeated DataItem createData = 1;
-  repeated DataItem deleteData = 2;
-  google.protobuf.Timestamp last_sync  = 3;
+  repeated SyncDataItem syncInfo = 1;
 }
 
 // SyncResponse is a message representing the response with data entries that have been changed since the last sync.
 message SyncResponse {
+  repeated DataItem updateData = 1;
+  repeated string requestedUpdates = 2;
+}
+
+// CreateBatchDataRequest is a message representing the request to create multiple data entries.
+message CreateBatchDataRequest {
   repeated DataItem data = 1;
 }
 
+// CreateBatchResponse is a message representing the response after creating multiple data entries.
+message CreateBatchResponse {
+}
+
+// UpdateBatchDataRequest is a message representing the request to update multiple data entries.
+message UpdateBatchDataRequest {
+  repeated DataItem data = 1;
+}
+
+// UpdateBatchResponse is a message representing the response after updating multiple data entries.
+message UpdateBatchResponse {
+}
 
 // Data is a service that provides methods for creating, retrieving, listing, and deleting data entries.
 service Data {
@@ -80,5 +103,7 @@ service Data {
   rpc GetContent(GetContentRequest) returns (GetContentResponse);
   rpc ListData(ListDataRequest) returns (ListDataResponse);
   rpc DeleteData(DeleteDataRequest) returns (DeleteDataResponse);
+  rpc CreateBatchData(CreateBatchDataRequest) returns (CreateBatchResponse);
+  rpc UpdateBatchData(UpdateBatchDataRequest) returns (UpdateBatchResponse);
   rpc SyncData(SyncRequest) returns (SyncResponse);
 }

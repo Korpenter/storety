@@ -5,7 +5,7 @@ package storage
 import (
 	"context"
 	"github.com/Mldlr/storety/internal/client/models"
-	"time"
+	"github.com/google/uuid"
 )
 
 // Storage is the interface for the storage layer, which defines the methods for handling user sessions and data storage.
@@ -22,11 +22,16 @@ type Storage interface {
 	// DeleteDataByName deletes a data entry by name.
 	DeleteDataByName(ctx context.Context, name string) error
 
-	// GetSyncData get sync data for sync with remote and last sync timestamp.
-	GetSyncData(ctx context.Context) ([]models.Data, []models.Data, time.Time, error)
+	GetNewData(ctx context.Context) ([]models.Data, error)
 
-	//UpdateSyncData updates data and last synced time in db.
-	UpdateSyncData(ctx context.Context, syncedNewData []models.Data, updatedData []models.Data) error
+	GetSyncData(ctx context.Context) ([]models.SyncData, error)
+
+	SyncBatch(ctx context.Context, syncBatch []models.Data) error
+
+	GetBatch(ctx context.Context, ids []uuid.UUID) ([]models.Data, error)
+
+	//SetSyncedStatus sets synced status to true for new data that was sent to the server.
+	SetSyncedStatus(ctx context.Context, newData []models.Data) error
 
 	// Close closes the db connection.
 	Close() error

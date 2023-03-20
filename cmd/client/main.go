@@ -91,6 +91,7 @@ func main() {
 	cryptoSvc := crypto.NewCrypto(cfg)
 	userService := service.NewUserService(ctx, conn, cfg)
 	dataService := service.NewDataService(ctx, conn, cfg)
+	dataService.StartSyncData()
 	do.Provide(
 		injector,
 		func(i *do.Injector) (crypto.Crypto, error) {

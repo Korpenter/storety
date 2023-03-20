@@ -26,6 +26,8 @@ type DataClient interface {
 	GetContent(ctx context.Context, in *GetContentRequest, opts ...grpc.CallOption) (*GetContentResponse, error)
 	ListData(ctx context.Context, in *ListDataRequest, opts ...grpc.CallOption) (*ListDataResponse, error)
 	DeleteData(ctx context.Context, in *DeleteDataRequest, opts ...grpc.CallOption) (*DeleteDataResponse, error)
+	CreateBatchData(ctx context.Context, in *CreateBatchDataRequest, opts ...grpc.CallOption) (*CreateBatchResponse, error)
+	UpdateBatchData(ctx context.Context, in *UpdateBatchDataRequest, opts ...grpc.CallOption) (*UpdateBatchResponse, error)
 	SyncData(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error)
 }
 
@@ -73,6 +75,24 @@ func (c *dataClient) DeleteData(ctx context.Context, in *DeleteDataRequest, opts
 	return out, nil
 }
 
+func (c *dataClient) CreateBatchData(ctx context.Context, in *CreateBatchDataRequest, opts ...grpc.CallOption) (*CreateBatchResponse, error) {
+	out := new(CreateBatchResponse)
+	err := c.cc.Invoke(ctx, "/proto.Data/CreateBatchData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataClient) UpdateBatchData(ctx context.Context, in *UpdateBatchDataRequest, opts ...grpc.CallOption) (*UpdateBatchResponse, error) {
+	out := new(UpdateBatchResponse)
+	err := c.cc.Invoke(ctx, "/proto.Data/UpdateBatchData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *dataClient) SyncData(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncResponse, error) {
 	out := new(SyncResponse)
 	err := c.cc.Invoke(ctx, "/proto.Data/SyncData", in, out, opts...)
@@ -90,6 +110,8 @@ type DataServer interface {
 	GetContent(context.Context, *GetContentRequest) (*GetContentResponse, error)
 	ListData(context.Context, *ListDataRequest) (*ListDataResponse, error)
 	DeleteData(context.Context, *DeleteDataRequest) (*DeleteDataResponse, error)
+	CreateBatchData(context.Context, *CreateBatchDataRequest) (*CreateBatchResponse, error)
+	UpdateBatchData(context.Context, *UpdateBatchDataRequest) (*UpdateBatchResponse, error)
 	SyncData(context.Context, *SyncRequest) (*SyncResponse, error)
 	mustEmbedUnimplementedDataServer()
 }
@@ -109,6 +131,12 @@ func (UnimplementedDataServer) ListData(context.Context, *ListDataRequest) (*Lis
 }
 func (UnimplementedDataServer) DeleteData(context.Context, *DeleteDataRequest) (*DeleteDataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteData not implemented")
+}
+func (UnimplementedDataServer) CreateBatchData(context.Context, *CreateBatchDataRequest) (*CreateBatchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBatchData not implemented")
+}
+func (UnimplementedDataServer) UpdateBatchData(context.Context, *UpdateBatchDataRequest) (*UpdateBatchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBatchData not implemented")
 }
 func (UnimplementedDataServer) SyncData(context.Context, *SyncRequest) (*SyncResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncData not implemented")
@@ -198,6 +226,42 @@ func _Data_DeleteData_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Data_CreateBatchData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBatchDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataServer).CreateBatchData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Data/CreateBatchData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataServer).CreateBatchData(ctx, req.(*CreateBatchDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Data_UpdateBatchData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBatchDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataServer).UpdateBatchData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Data/UpdateBatchData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataServer).UpdateBatchData(ctx, req.(*UpdateBatchDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Data_SyncData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncRequest)
 	if err := dec(in); err != nil {
@@ -238,6 +302,14 @@ var Data_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteData",
 			Handler:    _Data_DeleteData_Handler,
+		},
+		{
+			MethodName: "CreateBatchData",
+			Handler:    _Data_CreateBatchData_Handler,
+		},
+		{
+			MethodName: "UpdateBatchData",
+			Handler:    _Data_UpdateBatchData_Handler,
 		},
 		{
 			MethodName: "SyncData",

@@ -17,7 +17,7 @@ func (d *DB) CreateData(ctx context.Context, userID uuid.UUID, data *models.Data
 		return err
 	}
 	defer d.commitTx(ctx, tx, err)
-	res, err := d.conn.Exec(ctx, createData, data.ID, userID, data.Name, data.Type, data.Content, data.UpdatedAt, data.Deleted)
+	res, err := tx.Exec(ctx, createData, data.ID, userID, data.Name, data.Type, data.Content, data.UpdatedAt, data.Deleted)
 	if res.RowsAffected() == 0 || err != nil {
 		return errors.Join(constants.ErrCreateData, err)
 	}
@@ -45,7 +45,7 @@ func (d *DB) DeleteDataByName(ctx context.Context, userID uuid.UUID, name string
 		return err
 	}
 	defer d.commitTx(ctx, tx, err)
-	res, err := d.conn.Exec(ctx, deleteDataByName, name, userID)
+	res, err := tx.Exec(ctx, deleteDataByName, name, userID)
 	if res.RowsAffected() == 0 || err != nil {
 		return errors.Join(constants.ErrDeleteData, err)
 	}
@@ -62,6 +62,7 @@ func (d *DB) GetAllDataInfo(ctx context.Context, userID uuid.UUID) ([]models.Dat
 		}
 		return nil, err
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var data models.DataInfo
 		err = rows.Scan(&data.Name, &data.Type)
@@ -73,58 +74,119 @@ func (d *DB) GetAllDataInfo(ctx context.Context, userID uuid.UUID) ([]models.Dat
 	return list, nil
 }
 
-// SyncData retrieves all data entries that have been updated since the last sync for a specific user
-// and applies updates from client.
-func (d *DB) SyncData(ctx context.Context, userID uuid.UUID, syncData models.SyncData) ([]models.Data, error) {
+func (d *DB) CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
 	tx, err := d.conn.Begin(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer d.commitTx(ctx, tx, err)
-	if len(syncData.CreateData) > 0 {
-		batch := &pgx.Batch{}
-		for _, data := range syncData.CreateData {
-			batch.Queue(createData, data.ID, userID, data.Name, data.Type, data.Content, data.UpdatedAt, data.Deleted)
+	batch := &pgx.Batch{}
+	for _, data := range dataBatch {
+		batch.Queue(createData, data.ID, userID, data.Name, data.Type, data.Content, data.UpdatedAt, data.Deleted)
+	}
+
+	br := tx.SendBatch(ctx, batch)
+	defer br.Close()
+	if res, err := br.Exec(); res.RowsAffected() == 0 || err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errors.Join(constants.ErrCreateData, err)
 		}
-		br := d.conn.SendBatch(ctx, batch)
+		return err
+	}
+	return nil
+}
+
+func (d *DB) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
+	tx, err := d.conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer d.commitTx(ctx, tx, err)
+	batch := &pgx.Batch{}
+	for _, data := range dataBatch {
+		batch.Queue(updateDataByID, data.ID, userID, data.Name, data.Type, data.Content, data.Deleted, data.UpdatedAt)
+	}
+	br := tx.SendBatch(ctx, batch)
+	defer br.Close()
+	for i := 0; i < len(dataBatch); i++ {
+
 		if res, err := br.Exec(); res.RowsAffected() == 0 || err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return nil, errors.Join(constants.ErrCreateData, err)
+				return errors.Join(constants.ErrCreateData, err)
 			}
-			return nil, err
+			return err
 		}
 	}
-	if len(syncData.DeleteData) > 0 {
-		batch := &pgx.Batch{}
-		for _, data := range syncData.DeleteData {
-			batch.Queue(deleteDataByID, data.ID, userID, data.UpdatedAt)
-		}
-		br := d.conn.SendBatch(ctx, batch)
-		if res, err := br.Exec(); res.RowsAffected() == 0 || err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
-				return nil, errors.Join(constants.ErrCreateData, err)
-			}
-			return nil, err
-		}
-	}
-	var updates []models.Data
-	rows, err := d.conn.Query(ctx, getDataBySyncTime, userID, syncData.LastSync)
+	return nil
+}
+
+func (d *DB) GetNewData(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]models.Data, error) {
+	rows, err := d.conn.Query(ctx, getNewData, userID, ids)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, constants.ErrNoData
 		}
 		return nil, err
 	}
+	defer rows.Close()
+	var list []models.Data
 	for rows.Next() {
 		var data models.Data
-		var name, dataType sql.NullString
-		err = rows.Scan(&data.ID, &name, &dataType, &data.Content, &data.UpdatedAt, &data.Deleted)
+		err = rows.Scan(&data.ID, &data.Name, &data.Type, &data.Content, &data.UpdatedAt, &data.Deleted)
 		if err != nil {
 			return nil, err
 		}
-		data.Name = name.String
-		data.Type = dataType.String
-		updates = append(updates, data)
+		list = append(list, data)
 	}
-	return updates, nil
+	return list, nil
+}
+
+func (d *DB) GetDataByUpdateAndHash(ctx context.Context, userID uuid.UUID, syncData []models.SyncData) ([]models.Data, []string, error) {
+	earlierBatch := &pgx.Batch{}
+	laterBatch := &pgx.Batch{}
+	for _, data := range syncData {
+		earlierBatch.Queue(getEarlierUpdate, userID, data.ID, data.Hash, data.UpdatedAt)
+		laterBatch.Queue(getLaterUpdate, userID, data.ID, data.Hash, data.UpdatedAt)
+	}
+
+	ber := d.conn.SendBatch(ctx, earlierBatch)
+	defer ber.Close()
+	blr := d.conn.SendBatch(ctx, laterBatch)
+	defer blr.Close()
+
+	var requestUpdates []string
+	var sendUpdates []models.Data
+	for i := 0; i < len(syncData); i++ {
+		rowsE, err := ber.Query()
+		if err != nil {
+			return nil, nil, err
+		}
+		for rowsE.Next() {
+			var id string
+			err = rowsE.Scan(&id)
+			if err != nil {
+				return nil, nil, err
+			}
+			requestUpdates = append(requestUpdates, id)
+		}
+		rowsL, err := blr.Query()
+		if err != nil {
+			return nil, nil, err
+		}
+		if rowsL.Err() != nil {
+			return nil, nil, rowsL.Err()
+		}
+		for rowsL.Next() {
+			var data models.Data
+			var name, dataType sql.NullString
+			err = rowsL.Scan(&data.ID, &name, &dataType, &data.Content, &data.UpdatedAt, &data.Deleted)
+			if err != nil {
+				return nil, nil, err
+			}
+			data.Name = name.String
+			data.Type = dataType.String
+			sendUpdates = append(sendUpdates, data)
+		}
+	}
+	return sendUpdates, requestUpdates, nil
 }

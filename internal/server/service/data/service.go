@@ -36,6 +36,22 @@ func (s *ServiceImpl) GetDataContent(ctx context.Context, userID uuid.UUID, name
 	return s.storage.GetDataContentByName(ctx, userID, name)
 }
 
+// CreateBatch adds a new data batch in the database for the specified user.
+func (s *ServiceImpl) CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
+	if len(dataBatch) > 0 {
+		return s.storage.CreateBatch(ctx, userID, dataBatch)
+	}
+	return nil
+}
+
+// UpdateBatch updates a data batch in the database for the specified user.
+func (s *ServiceImpl) UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error {
+	if len(dataBatch) > 0 {
+		return s.storage.UpdateBatch(ctx, userID, dataBatch)
+	}
+	return nil
+}
+
 // DeleteData removes a specified data entry for a user.
 func (s *ServiceImpl) DeleteData(ctx context.Context, userID uuid.UUID, name string) error {
 	return s.storage.DeleteDataByName(ctx, userID, name)
@@ -46,7 +62,26 @@ func (s *ServiceImpl) ListData(ctx context.Context, userID uuid.UUID) ([]models.
 	return s.storage.GetAllDataInfo(ctx, userID)
 }
 
-// SyncData adds not synced data syncs client data.
-func (s *ServiceImpl) SyncData(ctx context.Context, userID uuid.UUID, syncData models.SyncData) ([]models.Data, error) {
-	return s.storage.SyncData(ctx, userID, syncData)
+// GetSyncData gets new data and ids for client to send to server for update.
+func (s *ServiceImpl) GetSyncData(ctx context.Context, userID uuid.UUID, syncData []models.SyncData) ([]models.Data, []string, error) {
+	ids := make([]uuid.UUID, len(syncData))
+	for i := range syncData {
+		ids[i] = syncData[i].ID
+	}
+	if len(syncData) == 0 {
+		newData, err := s.storage.GetNewData(ctx, userID, ids)
+		if err != nil {
+			return nil, nil, err
+		}
+		return newData, nil, nil
+	}
+	updatedData, requestID, err := s.storage.GetDataByUpdateAndHash(ctx, userID, syncData)
+	if err != nil {
+		return nil, nil, err
+	}
+	newData, err := s.storage.GetNewData(ctx, userID, ids)
+	if err != nil {
+		return nil, nil, err
+	}
+	return append(updatedData, newData...), requestID, nil
 }

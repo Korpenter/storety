@@ -16,7 +16,7 @@ func (d *DB) CreateSession(ctx context.Context, session *models.Session, oldSess
 		return err
 	}
 	defer d.commitTx(ctx, tx, err)
-	res, err := d.conn.Exec(ctx, createNewSession, session.ID, session.UserID, session.AuthToken, session.RefreshToken)
+	res, err := tx.Exec(ctx, createNewSession, session.ID, session.UserID, session.AuthToken, session.RefreshToken)
 	if res.RowsAffected() == 0 || err != nil {
 		return errors.Join(constants.ErrCreateSession, err)
 	}

@@ -36,6 +36,16 @@ type Storage interface {
 	// DeleteDataByName deletes a data entry by name for the given user's UUID.
 	DeleteDataByName(ctx context.Context, userID uuid.UUID, name string) error
 
-	// SyncData adds not synced data syncs client data.
-	SyncData(ctx context.Context, userID uuid.UUID, syncBatch models.SyncData) ([]models.Data, error)
+	// GetNewData retrieves all data entries that were created after the last sync.
+	GetNewData(ctx context.Context, userID uuid.UUID, ids []uuid.UUID) ([]models.Data, error)
+
+	// CreateBatch creates a new batch of data entries in the storage for a user.
+	CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error
+
+	// UpdateBatch updates a batch of data entries in the storage for a user.
+	UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error
+
+	// GetDataByUpdateAndHash retrieves data entries that were created after the last sync and have a different hash
+	// and IDs of entries that were updated locally but not synced.
+	GetDataByUpdateAndHash(ctx context.Context, userID uuid.UUID, syncData []models.SyncData) ([]models.Data, []string, error)
 }

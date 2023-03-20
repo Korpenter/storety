@@ -97,16 +97,27 @@ const (
 	SET name = NULL, deleted = true, content = null, updated_at = CURRENT_TIMESTAMP
 	WHERE name = $1 AND user_id = $2`
 
-	// deleteDataByID is a query to delete a data record by its ID and user ID.
-	deleteDataByID = `
+	// updateDataByID is a query to delete a data record by its ID and user ID.
+	updateDataByID = `
 	UPDATE data 
-	SET name = NULL, deleted = true, content = null, updated_at = $3
-    WHERE id = $1 AND user_id = $2 AND updated_at < $3`
+	SET name = $3, type = $4, content = $5, deleted = $6,  updated_at = $7
+    WHERE id = $1 AND user_id = $2`
 
-	// getDataBySyncTime is a query to get all data records for user that were updated after last client sync.
-	getDataBySyncTime = `
+	getNewData = `
 	SELECT id, name, type, content, updated_at, deleted
-	FROM data 
-	WHERE user_id = $1 AND updated_at > $2
+	FROM data
+	WHERE user_id = $1 AND id NOT IN (SELECT unnest($2::uuid[]))
+	`
+
+	getEarlierUpdate = `
+	SELECT id
+	FROM data
+	WHERE user_id = $1 AND id = $2 AND  coalesce(md5(content), '') != $3 AND updated_at <= $4
+`
+
+	getLaterUpdate = `
+	SELECT id, name, type, content, updated_at, deleted
+	FROM data
+	WHERE user_id = $1 AND id = $2 AND coalesce(md5(content), '') != $3 AND updated_at > $4
 `
 )

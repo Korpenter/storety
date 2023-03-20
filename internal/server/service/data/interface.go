@@ -26,6 +26,12 @@ type Service interface {
 	// ListData retrieves a list of all data entries associated with a user.
 	ListData(ctx context.Context, userID uuid.UUID) ([]models.DataInfo, error)
 
-	// SyncData adds not synced data syncs user data.
-	SyncData(ctx context.Context, userID uuid.UUID, syncData models.SyncData) ([]models.Data, error)
+	// CreateBatch adds a new data batch in the database for the specified user.
+	CreateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error
+
+	// UpdateBatch updates a data batch in the database for the specified user.
+	UpdateBatch(ctx context.Context, userID uuid.UUID, dataBatch []models.Data) error
+
+	// GetSyncData adds not synced data syncs user data.
+	GetSyncData(ctx context.Context, userID uuid.UUID, syncData []models.SyncData) ([]models.Data, []string, error)
 }

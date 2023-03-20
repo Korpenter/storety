@@ -75,12 +75,10 @@ func (s *StoretyHandler) ListData(ctx context.Context, request *pb.ListDataReque
 	return &pb.ListDataResponse{Data: response}, nil
 }
 
-// SyncData accepts data to update on the server and sends updates to user client.
-func (s *StoretyHandler) SyncData(ctx context.Context, request *pb.SyncRequest) (*pb.SyncResponse, error) {
+func (s *StoretyHandler) CreateBatchData(ctx context.Context, request *pb.CreateBatchDataRequest) (*pb.CreateBatchResponse, error) {
 	session := ctx.Value(models.SessionKey{}).(*models.Session)
-	createItems := make([]models.Data, len(request.CreateData))
-	deleteItems := make([]models.Data, len(request.DeleteData))
-	for i, d := range request.CreateData {
+	createItems := make([]models.Data, len(request.Data))
+	for i, d := range request.Data {
 		id, err := uuid.Parse(d.Id)
 		if err != nil {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -94,35 +92,71 @@ func (s *StoretyHandler) SyncData(ctx context.Context, request *pb.SyncRequest) 
 			Deleted:   d.Deleted,
 		}
 	}
-	for i, v := range request.DeleteData {
-		id, err := uuid.Parse(v.Id)
-		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, err.Error())
-		}
-		deleteItems[i] = models.Data{
-			ID:        id,
-			Name:      v.Name,
-			Type:      v.Type,
-			Content:   v.Content,
-			UpdatedAt: v.UpdatedAt.AsTime(),
-			Deleted:   v.Deleted,
-		}
-	}
-	syncData := models.SyncData{
-		CreateData: createItems,
-		DeleteData: deleteItems,
-		LastSync:   request.LastSync.AsTime(),
-	}
-	updates, err := s.dataService.SyncData(ctx, session.UserID, syncData)
+	err := s.dataService.CreateBatch(ctx, session.UserID, createItems)
 	if err != nil {
 		if errors.Is(err, constants.ErrGetData) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	resp := &pb.SyncResponse{Data: make([]*pb.DataItem, len(updates))}
+	return &pb.CreateBatchResponse{}, nil
+}
+
+func (s *StoretyHandler) UpdateBatchData(ctx context.Context, request *pb.UpdateBatchDataRequest) (*pb.UpdateBatchResponse, error) {
+	session := ctx.Value(models.SessionKey{}).(*models.Session)
+	updateItems := make([]models.Data, len(request.Data))
+	for i, d := range request.Data {
+		id, err := uuid.Parse(d.Id)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+		updateItems[i] = models.Data{
+			ID:        id,
+			Name:      d.Name,
+			Type:      d.Type,
+			Content:   d.Content,
+			UpdatedAt: d.UpdatedAt.AsTime(),
+			Deleted:   d.Deleted,
+		}
+	}
+	err := s.dataService.UpdateBatch(ctx, session.UserID, updateItems)
+	if err != nil {
+		if errors.Is(err, constants.ErrGetData) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.UpdateBatchResponse{}, nil
+}
+
+// SyncData accepts data to update on the server and sends updates to user client.
+func (s *StoretyHandler) SyncData(ctx context.Context, request *pb.SyncRequest) (*pb.SyncResponse, error) {
+	session := ctx.Value(models.SessionKey{}).(*models.Session)
+	syncData := make([]models.SyncData, len(request.SyncInfo))
+	for i, d := range request.SyncInfo {
+		id, err := uuid.Parse(d.Id)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+		syncData[i] = models.SyncData{
+			ID:        id,
+			Hash:      d.Hash,
+			UpdatedAt: d.UpdatedAt.AsTime(),
+		}
+	}
+	updates, requestedUpdates, err := s.dataService.GetSyncData(ctx, session.UserID, syncData)
+	if err != nil {
+		if errors.Is(err, constants.ErrGetData) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	resp := &pb.SyncResponse{
+		UpdateData:       make([]*pb.DataItem, len(updates)),
+		RequestedUpdates: requestedUpdates,
+	}
 	for i, v := range updates {
-		resp.Data[i] = &pb.DataItem{
+		resp.UpdateData[i] = &pb.DataItem{
 			Id:        v.ID.String(),
 			Name:      v.Name,
 			Type:      v.Type,

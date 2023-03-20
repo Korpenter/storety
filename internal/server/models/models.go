@@ -44,7 +44,7 @@ type DataInfo struct {
 
 // SyncData is the data sync model for syncing client db with server.
 type SyncData struct {
-	CreateData []Data
-	DeleteData []Data
-	LastSync   time.Time
+	ID        uuid.UUID
+	UpdatedAt time.Time
+	Hash      string
 }

@@ -54,9 +54,15 @@ type Data struct {
 	Deleted   bool
 }
 
+// SyncData is the sync data model for sync requests.
+type SyncData struct {
+	ID        uuid.UUID
+	UpdatedAt time.Time
+	Hash      string
+}
+
 // DataInfo is the data info model.
 type DataInfo struct {
-	Name   string
-	Type   string
-	Synced bool
+	Name string
+	Type string
 }

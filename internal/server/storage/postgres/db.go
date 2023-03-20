@@ -50,4 +50,5 @@ func (d *DB) commitTx(ctx context.Context, tx pgx.Tx, err error) {
 	} else {
 		tx.Commit(ctx)
 	}
+
 }

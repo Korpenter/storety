@@ -40,13 +40,9 @@ func NewDB(databasePath, username string) (*DB, error) {
 			return nil, err
 		}
 	}
-	db, err := sql.Open("sqlite3", fmt.Sprintf("file:%s?cache=shared", database))
+	db, err := sql.Open("sqlite3", fmt.Sprintf("file:%s", database))
 	if err != nil {
 		return nil, err
-	}
-	_, err = db.Exec(createTableMeta)
-	if err != nil {
-		log.Fatalf("Error creating table: %v", err)
 	}
 	_, err = db.Exec(createTableData)
 	if err != nil {
