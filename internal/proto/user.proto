@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/Mldlr/storety/internal/proto";
+
+// CreateUserRequest is a message representing the request to create a new user.
+message CreateUserRequest {
+  string login = 1;
+  string password = 2;
+  string salt = 3;
+}
+
+// CreateUserResponse is a message representing the response containing auth and refresh tokens after user creation.
+message CreateUserResponse {
+  string authToken = 1;
+  string refreshToken = 2;
+}
+
+// LoginUserRequest is a message representing the request to log in a user.
+message LoginUserRequest {
+  string login = 1;
+  string password = 2;
+}
+
+// LoginUserResponse is a message representing the response containing auth and refresh tokens after user login.
+message LoginUserResponse {
+  string authToken = 1;
+  string refreshToken = 2;
+  string salt = 3;
+}
+
+// RefreshUserSessionRequest is a message representing the request to refresh the user's session.
+message RefreshUserSessionRequest {
+}
+
+// RefreshUserSessionResponse is a message representing the response containing new auth and refresh tokens after refreshing the user's session.
+message RefreshUserSessionResponse {
+  string authToken = 1;
+  string refreshToken = 2;
+}
+
+// User is a service that provides methods for creating, logging in, and refreshing user sessions.
+service User {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc LogInUser (LoginUserRequest) returns (LoginUserResponse);
+  rpc RefreshUserSession (RefreshUserSessionRequest) returns (RefreshUserSessionResponse);
+}

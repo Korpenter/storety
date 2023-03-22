@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package proto;
+
+option go_package = "github.com/Mldlr/storety/internal/proto";
+
+
+// CreateDataRequestItem is a message representing a data entry to be created.
+message DataItem {
+  string id = 1;
+  string name = 2;
+  string type = 3;
+  bytes content = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  bool deleted = 6;
+}
+
+//  SyncDataItem is a message representing a data entry to be synced.
+message SyncDataItem {
+  string id = 1;
+  string hash = 2;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+// CreateDataRequest is a message representing the request to create a new data entry.
+message CreateDataRequest {
+  DataItem data = 1;
+}
+
+// CreateDataResponse is a message representing the response after creating a new data entry.
+message CreateDataResponse {
+}
+
+// DataInfo contains information about a specific data entry.
+message DataInfo {
+  string name = 1;
+  string type = 2;
+}
+
+// ListDataRequest is a message representing the request to list all data entries.
+message ListDataRequest{
+}
+
+// ListDataResponse is a message representing the response containing a list of all data entries.
+message ListDataResponse {
+  repeated DataInfo data = 1;
+}
+
+// GetContentRequest is a message representing the request to retrieve the content of a specific data entry.
+message GetContentRequest {
+  string name = 1;
+}
+
+// GetContentResponse is a message representing the response containing the content and type of a specific data entry.
+message GetContentResponse {
+  bytes content = 1;
+  string type =   2;
+}
+
+// DeleteDataRequest is a message representing the request to delete a specific data entry.
+message DeleteDataRequest {
+  string name = 1;
+}
+
+// DeleteDataResponse is a message representing the response after deleting a specific data entry.
+message DeleteDataResponse {
+}
+
+// SyncRequest is a message representing the request to sync the data entries with the server.
+message SyncRequest {
+  repeated SyncDataItem syncInfo = 1;
+}
+
+// SyncResponse is a message representing the response with data entries that have been changed since the last sync.
+message SyncResponse {
+  repeated DataItem updateData = 1;
+  repeated string requestedUpdates = 2;
+}
+
+// CreateBatchDataRequest is a message representing the request to create multiple data entries.
+message CreateBatchDataRequest {
+  repeated DataItem data = 1;
+}
+
+// CreateBatchResponse is a message representing the response after creating multiple data entries.
+message CreateBatchResponse {
+}
+
+// UpdateBatchDataRequest is a message representing the request to update multiple data entries.
+message UpdateBatchDataRequest {
+  repeated DataItem data = 1;
+}
+
+// UpdateBatchResponse is a message representing the response after updating multiple data entries.
+message UpdateBatchResponse {
+}
+
+// Data is a service that provides methods for creating, retrieving, listing, and deleting data entries.
+service Data {
+  rpc CreateData(CreateDataRequest) returns (CreateDataResponse);
+  rpc GetContent(GetContentRequest) returns (GetContentResponse);
+  rpc ListData(ListDataRequest) returns (ListDataResponse);
+  rpc DeleteData(DeleteDataRequest) returns (DeleteDataResponse);
+  rpc CreateBatchData(CreateBatchDataRequest) returns (CreateBatchResponse);
+  rpc UpdateBatchData(UpdateBatchDataRequest) returns (UpdateBatchResponse);
+  rpc SyncData(SyncRequest) returns (SyncResponse);
+}
